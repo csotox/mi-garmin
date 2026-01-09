@@ -3,4 +3,6 @@ pyarrow
 matplotlib
 seaborn
 pydantic
+fitparse
+
 pytest
