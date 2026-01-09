@@ -11,3 +11,4 @@ quote-style = "double"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-ra -q"
+pythonpath = ["."]
