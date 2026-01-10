@@ -1,6 +1,11 @@
+#-- - file: etl-garmin.py
+
 from pathlib import Path
 
 from fitparse import FitFile
+
+from src.extract import get_activity_summary
+from src.models.activity import ActivitySummary
 
 PATH_DATA_RAW = 'data/raw_data'
 
@@ -10,7 +15,9 @@ PATH_DATA_RAW = 'data/raw_data'
 def printx(msj: str = '') -> None:
     print(msj)
 
-def read_raw_fit_activities():
+def read_raw_fit_activities() -> list[ActivitySummary]:
+    activities: list[ActivitySummary] = []
+
     base_path = Path(f"{PATH_DATA_RAW}/fit_activities")
     fit_files = list(base_path.glob("*.fit"))
 
@@ -20,21 +27,10 @@ def read_raw_fit_activities():
     for item_file in fit_files:
         data = FitFile( str(item_file) )
 
-        message_types = set()
-        for msg in data.get_messages():
-            message_types.add(msg.name)
+        summary = get_activity_summary(data)
+        activities.append(summary)
 
-        printx(f"Tipos de mensajes encontrados: {sorted(message_types)}")
-
-        # Ver información en session
-        for session in data.get_messages("session"):
-            printx("Resumen de sesión:")
-            for field in session:
-                printx(f"  {field.name}: {field.value}")
-
-            break
-
-    return []
+    return activities
 
 def main():
     printx("-- - Iniciando Automatización de Garmin Connect -- -")
@@ -51,8 +47,11 @@ def main():
     #-- - Intentaremos trabajar con los archivos .fit Mucha suerte y animo :)
     activities = read_raw_fit_activities()
 
+    printx(f"Se procesaron {len(activities)} actividades.")
+    for item in activities:
+        printx(item.model_dump())
+
     printx("-- - Automatización finalizada -- -")
 
 if __name__ == "__main__":
     main()
-#

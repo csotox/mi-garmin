@@ -1,3 +1,5 @@
+#-- - file: src/extract.py
+
 from fitparse import FitFile
 
 from src.models.activity import ActivitySummary
