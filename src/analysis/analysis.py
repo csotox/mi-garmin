@@ -1,41 +1,22 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Any
 
 import polars as pl
+
+from src.models.data_kpi_week import DataKPIWeek
 
 
 #-- - Resumen semanal de sesiones de entrenamiento
 #-- - Bases para calculo de kpis semanal
-#-- - [Data]
-#-- -   - week_start:           Fecha inicio de la semana
-#-- -   - week_end':            Último entreno de la semana
-#-- -   - sessions:             Número de sesiones de entrenamiento
-#-- -   - distance_km:          Distancia acumulada semanal
-#-- -   - time_min:             Tiempo acumulado semanal
-#-- -   - ascent_m:             Running ascenso total
-#-- -   - descent_m:            Running descenso total (Se puede asumir que si subo debo bajar, pero la ruta puede ser diferente)
-#-- -   - avg_heart_rate:       Pulso promedio de la sesión de entrenamiento
-#-- -   - max_heart_rate:       Pulso máximo de la sesión de entrenamiento
 #-- - [TODO]
-#-- -   -[ ] ¿La estructura de datos devuelta puede ser tipada como los models de typescript?
+#-- -   -[X] ¿La estructura de datos devuelta puede ser tipada como los models de typescript?
 #-- -   -[ ] Crear utils.py
 #-- -   -[ ] Diferenciar tipo de actividad (correr, caminar, gimnasio, etc.)
 #-- -   -[ ] Establecer semanas
-def get_data_kpi_week_from_activity(df_activity: pl.DataFrame) -> dict[str, Any]:
+def get_data_kpi_week_from_activity(df_activity: pl.DataFrame) -> DataKPIWeek:
     if df_activity.is_empty():
-        return {
-            "week_start": None,
-            "week_end": None,
-            "sessions": 0,
-            "distance_km": 0.0,
-            "time_min": 0.0,
-            "ascent_m": 0,
-            "descent_m": 0,
-            "avg_heart_rate": 0.0,
-            "max_heart_rate": 0
-        }
+        return DataKPIWeek()
 
     #-- - [TODO] Pasar a utils.py
     #-- - Normalizamos unidades: distancia (m->km) y tiempo (s->min)
@@ -64,4 +45,4 @@ def get_data_kpi_week_from_activity(df_activity: pl.DataFrame) -> dict[str, Any]
     if "max_heart_rate" in df.columns:
         out["max_heart_rate"] = int(df.select(pl.col("max_heart_rate").max()).item() or 0)
 
-    return out
+    return DataKPIWeek(**out)
