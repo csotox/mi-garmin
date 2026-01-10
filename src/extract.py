@@ -1,5 +1,7 @@
 #-- - file: src/extract.py
 
+from typing import Any, Dict
+
 from fitparse import FitFile
 
 from src.models.activity import ActivitySummary
@@ -8,7 +10,10 @@ from src.models.activity import ActivitySummary
 def get_activity_summary(fitfile: FitFile) -> ActivitySummary:
     session = next(fitfile.get_messages("session"))
 
-    data = {field.name: field.value for field in session}
+    data: Dict[str, Any] = {
+        field.name: field.value
+        for field in session  # type: ignore[reportGeneralTypeIssues]
+    }
 
     summary = ActivitySummary(
         start_time=data["start_time"],

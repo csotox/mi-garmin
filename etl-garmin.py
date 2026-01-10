@@ -12,7 +12,7 @@ PATH_DATA_RAW = 'data/raw_data'
 # Probablemente esta función sea temporal, quiero ver como se comporta cuando muestre mensajes en
 # consola. Me gustaria agregar color y probablemente barras de progreso. Por ahora lo mantenemos
 # simple. Si no se logra el objetivo, siempre se puede usar logging.
-def printx(msj: str = '') -> None:
+def printx(msj: object = '') -> None:
     print(msj)
 
 def read_raw_fit_activities() -> list[ActivitySummary]:

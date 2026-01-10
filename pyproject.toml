@@ -12,3 +12,6 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-ra -q"
 pythonpath = ["."]
+filterwarnings = [
+    "ignore:datetime.datetime.utcfromtimestamp.*:DeprecationWarning"
+]
