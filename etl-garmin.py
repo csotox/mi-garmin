@@ -6,6 +6,7 @@ from fitparse import FitFile
 
 from src.extract import get_activity_laps, get_activity_records, get_activity_summary
 from src.models.activity import ActivitySummary
+from src.transform import activity_summary_to_df, laps_to_df, records_to_df
 
 PATH_DATA_RAW = 'data/raw_data'
 
@@ -25,8 +26,10 @@ def printx(msj: object = '') -> None:
 #-- - Considerar que revisando la página de Garmin Connect descargar los csv de las actividades
 #-- - no contienen suficiente información para el análisis que deseo realizar. Por tanto,
 #-- - Intentaremos trabajar con los archivos .fit Mucha suerte y animo :)
-def read_raw_fit_activities() -> list[ActivitySummary]:
+def read_raw_fit_activities() -> tuple[list[ActivitySummary], list, list]:
     activities: list[ActivitySummary] = []
+    all_laps = []
+    all_records = []
 
     base_path = Path(f"{PATH_DATA_RAW}/fit_activities")
     fit_files = list(base_path.glob("*.fit"))
@@ -41,24 +44,27 @@ def read_raw_fit_activities() -> list[ActivitySummary]:
         activities.append(summary)
 
         laps = get_activity_laps(data)
-        printx(f"Laps extraídos: {len(laps)}")
-        for lap in laps:
-            printx(lap.model_dump())
+        all_laps.extend(laps)
 
         records = get_activity_records(data)
-        printx(f"Records extraídos: {len(records)}")
-        printx(records[0].model_dump())
+        all_records.extend(records)
 
-    return activities
+    return activities, all_laps, all_records
 
 def main():
     printx("-- - Iniciando Automatización de Garmin Connect -- -")
 
-    activities = read_raw_fit_activities()
+    #-- - Leer archivos .fit para data de actividad deportiva
+    activities, laps, records = read_raw_fit_activities()
 
-    printx(f"Se procesaron {len(activities)} actividades.")
-    for item in activities:
-        printx(item.model_dump())
+    #-- - Transformar data a DataFrames
+    df_activity = activity_summary_to_df(activities[0])         # Vamos poco a poco
+    df_laps = laps_to_df(laps)
+    df_records = records_to_df(records)
+
+    printx(df_activity)
+    printx(df_laps.head())
+    printx(df_records.head())
 
     printx("-- - Automatización finalizada -- -")
 
