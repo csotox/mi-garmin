@@ -4,6 +4,7 @@ from typing import Any, Dict
 
 from fitparse import FitFile
 
+from src.analysis.activity_type import activity_type
 from src.models.activity import ActivitySummary
 from src.models.lap import LapSummary
 from src.models.record import RecordPoint
@@ -20,6 +21,7 @@ def get_activity_summary(fitfile: FitFile) -> ActivitySummary:
     summary = ActivitySummary(
         start_time=data["start_time"],
         sport=data["sport"],
+        activity_type=activity_type(data["sport"]),
 
         total_distance=data["total_distance"],
         total_timer_time=data["total_timer_time"],

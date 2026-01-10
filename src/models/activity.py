@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 class ActivitySummary(BaseModel):
     start_time: datetime    # Fecha/hora inicio de la actividad
     sport: str              # Tipo de actividad
+    activity_type: str      # Normalización del tipo de actividad (run, walk, gym, other)
 
     total_distance: float = Field(..., gt=0, description="Distancia total en metros")
     total_timer_time: float = Field(..., gt=0, description="Tiempo activo en segundos")

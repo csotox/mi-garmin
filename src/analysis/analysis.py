@@ -11,14 +11,13 @@ from src.models.data_kpi_week import DataKPIWeek
 #-- - Bases para calculo de kpis semanal
 #-- - [TODO]
 #-- -   -[X] ¿La estructura de datos devuelta puede ser tipada como los models de typescript?
-#-- -   -[ ] Crear utils.py
-#-- -   -[ ] Diferenciar tipo de actividad (correr, caminar, gimnasio, etc.)
+#-- -   -[X] Crear utils.py (Restuesta) No es necesario porque polars es vectorizado y si uso utils se rompe la vectorización
+#-- -   -[X] Diferenciar tipo de actividad (correr, caminar, gimnasio, etc.)
 #-- -   -[ ] Establecer semanas
 def get_data_kpi_week_from_activity(df_activity: pl.DataFrame) -> DataKPIWeek:
     if df_activity.is_empty():
         return DataKPIWeek()
 
-    #-- - [TODO] Pasar a utils.py
     #-- - Normalizamos unidades: distancia (m->km) y tiempo (s->min)
     df = df_activity.with_columns(
         (pl.col("total_distance") / 1000).alias("distance_km"),

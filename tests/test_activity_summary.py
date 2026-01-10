@@ -10,6 +10,7 @@ def test_activity_summary_valid():
     summary = ActivitySummary(
         start_time=datetime.now(),      # Fecha/hora inicio de la actividad
         sport="running",                #
+        activity_type="run",            # Normalización del tipo de actividad (run, walk, gym, other)
         total_distance=5000.0,          # 5 kilometros
         total_timer_time=1800.0,        # 30 minutos
         avg_heart_rate=140,             # Pulso promedio
