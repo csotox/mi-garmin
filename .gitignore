@@ -1,2 +1,3 @@
 __pycache__
+data/parquet/*.parquet
 data/raw_data/fit_activities/*.fit

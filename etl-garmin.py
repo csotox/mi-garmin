@@ -2,13 +2,16 @@
 
 from pathlib import Path
 
+import polars as pl
 from fitparse import FitFile
 
 from src.extract import get_activity_laps, get_activity_records, get_activity_summary
+from src.load import write_parquet
 from src.models.activity import ActivitySummary
 from src.transform import activity_summary_to_df, laps_to_df, records_to_df
 
 PATH_DATA_RAW = 'data/raw_data'
+PATH_DATA_PARQUET = 'data/parquet'
 
 #-- - Probablemente esta función sea temporal, quiero ver como se comporta cuando muestre mensajes en
 #-- - consola. Me gustaria agregar color y probablemente barras de progreso. Por ahora lo mantenemos
@@ -62,9 +65,15 @@ def main():
     df_laps = laps_to_df(laps)
     df_records = records_to_df(records)
 
-    printx(df_activity)
-    printx(df_laps.head())
-    printx(df_records.head())
+    #-- - Persistencia de datos
+    write_parquet(df_activity, f"{PATH_DATA_PARQUET}/activity_summary.parquet")
+    write_parquet(df_laps, f"{PATH_DATA_PARQUET}/laps.parquet")
+    write_parquet(df_records, f"{PATH_DATA_PARQUET}/records.parquet")
+
+    #-- - Validación de todo ok
+    df_check = pl.read_parquet(f"{PATH_DATA_PARQUET}/activity_summary.parquet")
+    printx(df_check)
+
 
     printx("-- - Automatización finalizada -- -")
 
