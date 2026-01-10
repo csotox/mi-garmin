@@ -1,6 +1,6 @@
 from fitparse import FitFile
 
-from src.extract import get_activity_summary
+from src.etl.extract import get_activity_summary
 from src.models.activity import ActivitySummary
 
 

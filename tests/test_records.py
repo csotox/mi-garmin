@@ -1,6 +1,6 @@
 from fitparse import FitFile
 
-from src.extract import get_activity_records
+from src.etl.extract import get_activity_records
 from src.models.record import RecordPoint
 
 

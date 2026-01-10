@@ -1,6 +1,6 @@
 from fitparse import FitFile
 
-from src.extract import get_activity_laps
+from src.etl.extract import get_activity_laps
 from src.models.lap import LapSummary
 
 

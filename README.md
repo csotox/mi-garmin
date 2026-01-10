@@ -36,12 +36,13 @@ mi-garmin/
 │  ├─ parquet/               # Capa de persistencia
 │  └─ outputs/               # JSON para análisis
 ├─ src/
-│  └─ models/          # Models de pydantic
-│  ├─ extract.py       # Lectura de carpeta raw_data
-│  ├─ transform.py     # Procesamiento y normalización de los datos
-│  ├─ load.py          # Actualización de archivos Parquet
-│  ├─ export.py        # parquet -> JSON (Generar json para análisis)
-│  └─ reports.py       # Generación de tablero analítico
+│  ├─ etl/                # Código ETL
+│  │  ├─ extract.py       # Lectura de carpeta raw_data
+│  │  ├─ transform.py     # Procesamiento y normalización de los datos
+│  │  └─ load.py          # Actualización de archivos Parquet
+│  └─ models/             # Models de pydantic
+│  ├─ export.py           # parquet -> JSON (Generar json para análisis)
+│  └─ reports.py          # Generación de tablero analítico
 ├─ tests/
 │  ├─ test_extract.py
 │  ├─ test_transform.py

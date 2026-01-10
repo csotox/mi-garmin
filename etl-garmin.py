@@ -5,10 +5,10 @@ from pathlib import Path
 import polars as pl
 from fitparse import FitFile
 
-from src.extract import get_activity_laps, get_activity_records, get_activity_summary
-from src.load import write_parquet
+from src.etl.extract import get_activity_laps, get_activity_records, get_activity_summary
+from src.etl.load import write_parquet
+from src.etl.transform import activity_summary_to_df, laps_to_df, records_to_df
 from src.models.activity import ActivitySummary
-from src.transform import activity_summary_to_df, laps_to_df, records_to_df
 
 PATH_DATA_RAW = 'data/raw_data'
 PATH_DATA_PARQUET = 'data/parquet'
