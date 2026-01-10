@@ -6,6 +6,7 @@ from fitparse import FitFile
 
 from src.models.activity import ActivitySummary
 from src.models.lap import LapSummary
+from src.models.record import RecordPoint
 
 
 def get_activity_summary(fitfile: FitFile) -> ActivitySummary:
@@ -54,3 +55,26 @@ def get_activity_laps(fitfile: FitFile) -> list[LapSummary]:
         laps.append(lap_summary)
 
     return laps
+
+def get_activity_records(fitfile: FitFile) -> list[RecordPoint]:
+    records: list[RecordPoint] = []
+
+    for record in fitfile.get_messages("record"):
+        data: Dict[str, Any] = {
+            field.name: field.value
+            for field in record  # type: ignore[reportGeneralTypeIssues]
+        }
+
+        if "timestamp" not in data:
+            continue
+
+        point = RecordPoint(
+            timestamp=data["timestamp"],
+            heart_rate=data.get("heart_rate"),
+            speed=data.get("speed"),
+            altitude=data.get("altitude"),
+        )
+
+        records.append(point)
+
+    return records

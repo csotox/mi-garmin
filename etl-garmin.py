@@ -4,7 +4,7 @@ from pathlib import Path
 
 from fitparse import FitFile
 
-from src.extract import get_activity_laps, get_activity_summary
+from src.extract import get_activity_laps, get_activity_records, get_activity_summary
 from src.models.activity import ActivitySummary
 
 PATH_DATA_RAW = 'data/raw_data'
@@ -44,6 +44,10 @@ def read_raw_fit_activities() -> list[ActivitySummary]:
         printx(f"Laps extraídos: {len(laps)}")
         for lap in laps:
             printx(lap.model_dump())
+
+        records = get_activity_records(data)
+        printx(f"Records extraídos: {len(records)}")
+        printx(records[0].model_dump())
 
     return activities
 
