@@ -1,3 +1,4 @@
+from src.analysis.analysis import get_data_kpi_week_from_activity
 from src.analysis.repository import load_activity_summary
 
 
@@ -11,8 +12,10 @@ def main():
     printx("-- - Iniciando Análisis de entrenamiento de Garmin Connect -- -")
 
     df_summary = load_activity_summary()
+    kpis_week = get_data_kpi_week_from_activity(df_summary)
+
     print(f"Total actividades: {df_summary.height}")
-    print(df_summary.head())
+    print(kpis_week)
 
     printx("-- - Análisis finalizado -- -")
 
