@@ -19,7 +19,7 @@ def main():
     print(f"Temporada activa: {temporada.name} ({temporada.start_date} - {temporada.weeks} semanas)")
 
     df_summary = load_activity_summary()
-    kpis_week = get_data_kpi_week_from_activity(df_summary)
+    kpis_week = get_data_kpi_week_from_activity(df_summary, temporada)
 
     print(f"Total actividades: {df_summary.height}")
     print(kpis_week)
