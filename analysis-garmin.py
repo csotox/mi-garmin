@@ -29,6 +29,10 @@ def main():
     #-- - 3.
     #-- - Cálculo de KPIs/estadisticas
     kpis_week = get_data_kpi_week_from_activity(df_summary, temporada)
+    # printx('-- - --')
+    # printx(temporada)
+    # printx(kpis_week)
+    # printx('-- - --')
 
     #-- - 4.
     #-- - Persistencia del análisis
@@ -38,7 +42,7 @@ def main():
 
     #-- - 5.
     #-- - Exportación a JSON (De aquí se genera el dashboard)
-    exporter = KPIWeekExporter()
+    exporter = KPIWeekExporter(season=temporada)
     exporter.export_all()
 
     printx("-- - Análisis finalizado -- -")

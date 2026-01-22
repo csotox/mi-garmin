@@ -7,11 +7,13 @@ from pathlib import Path
 import polars as pl
 
 from src.analysis.kpi_week_repository import KPIWeekRepository
+from src.models.season_config import SeasonConfig
 
 
 class KPIWeekExporter:
     def __init__(
         self,
+        season: SeasonConfig,
         parquet_path: str = "data/parquet",
         output_path: str = "data/outputs",
     ) -> None:
@@ -22,17 +24,25 @@ class KPIWeekExporter:
 
         self.output_file = self.output_dir / "kpi_week.json"
 
+        self.season = season
+
     def export_all(self) -> None:
         df = self.repo.load()
         self._export_df(df)
 
-    def export_season(self, season_code: str) -> None:
-        df = self.repo.load_by_season(season_code)
-        self._export_df(df, season_code)
+    def export_season(self) -> None:
+        df = self.repo.load_by_season(self.season.code)
+        self._export_df(df)
 
-    def _export_df(self, df: pl.DataFrame, season_code: str | None = None) -> None:
+    def _export_df(self, df: pl.DataFrame) -> None:
         payload = {
-            "season": season_code,
+            "season": {
+                "code": self.season.code,
+                "season": self.season.season,
+                "name": self.season.name,
+                "start_date": self.season.start_date.isoformat(),
+                "weeks": self.season.weeks,
+            } if self.season else None,
             "generated_at": datetime.now(UTC).isoformat(),
             "weeks": df.to_dicts() if not df.is_empty() else [],
         }

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 
 from src.models.season_config import SeasonConfig
 
@@ -27,3 +27,10 @@ def calculate_season_week(activity_date: date, season: SeasonConfig) -> int:
 #-- - Formato: TYY.SS
 def build_season_code(season: SeasonConfig, season_week: int) -> str:
     return f"{season.code}.{season_week:02d}"
+
+#-- - Devuelve el rango de inicio y fin de la semana
+#-- - Por ahora se asume que la semana inicia el día lunes y termina el domingo
+def get_season_week_range(season: SeasonConfig, week: int) -> tuple[date, date]:
+    start = season.start_date + timedelta(days=(week - 1) * 7)
+    end = start + timedelta(days=6)
+    return start, end
