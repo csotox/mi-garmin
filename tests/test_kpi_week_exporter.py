@@ -5,6 +5,7 @@ from pathlib import Path
 from src.analysis.kpi_week_exporter import KPIWeekExporter
 from src.analysis.kpi_week_repository import KPIWeekRepository
 from src.models.data_kpi_week import DataKPIWeek
+from src.models.season_config import SeasonConfig
 
 
 def test_export_all(tmp_path: Path):
@@ -12,6 +13,15 @@ def test_export_all(tmp_path: Path):
     output_dir = tmp_path / "outputs"
 
     repo = KPIWeekRepository(base_path=str(parquet_dir))
+
+    temporada = SeasonConfig(
+        code="T2026",
+        season=26,
+        start_date=date(2025,10,13),
+        weeks=40,
+        name="Temporada 2026"
+    )
+
 
     kpi = DataKPIWeek(
         season=26,
@@ -31,6 +41,7 @@ def test_export_all(tmp_path: Path):
     repo.save([kpi])
 
     exporter = KPIWeekExporter(
+        season=temporada,
         parquet_path=str(parquet_dir),
         output_path=str(output_dir),
     )
