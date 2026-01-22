@@ -36,6 +36,14 @@ mi-garmin/
 │  ├─ parquet/               # Capa de persistencia
 │  └─ outputs/               # JSON para análisis
 ├─ src/
+│  ├─ analysis/                  # Análisis de datos y generación de kpis
+│  │  ├─ activity_type.py        # Homologación de tipos de entrenamiento
+│  │  ├─ analysis.py             # Calcula kpis y análisis semanal
+│  │  ├─ kpi_week_exporter.py    # Genera json para visualización/Dashboard
+│  │  ├─ kpi_week_repository.py  # 
+│  │  ├─ repository.py           # Lee los archivos parquet (raw)
+│  │  ├─ season_repository.py    # Calculos de temporada
+│  │  └─ season_service.py       # Helper/utils para calculos de config de la temporada
 │  ├─ etl/                # Código ETL
 │  │  ├─ extract.py       # Lectura de carpeta raw_data
 │  │  ├─ transform.py     # Procesamiento y normalización de los datos
@@ -49,7 +57,8 @@ mi-garmin/
 │  ├─ test_load.py
 │  ├─ test_export.py
 │  └─ test_reports.py
-└─ etl-garmin.py       # Lanzados de la automatización
+├─ analysis_garmin.py     # pipelines para calculo del análisis
+└─ etl-garmin.py          # Lanzados de la automatización
 ~~~
 
 ## Stack
