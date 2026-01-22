@@ -36,6 +36,7 @@ class KPIWeekExporter:
 
     def _export_df(self, df: pl.DataFrame) -> None:
         payload = {
+            "schema_version": "v1",
             "season": {
                 "code": self.season.code,
                 "season": self.season.season,
