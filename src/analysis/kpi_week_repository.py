@@ -22,10 +22,10 @@ class KPIWeekRepository:
             return
 
         df = pl.DataFrame(rows)
+        final_df = df
 
         if self.file_path.exists():
             existing = pl.read_parquet(self.file_path)
-            final_df = df
 
             if not existing.is_empty():
                 new_keys = df.select(["season", "season_week"])
