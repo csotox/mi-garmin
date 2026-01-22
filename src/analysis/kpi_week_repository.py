@@ -19,15 +19,27 @@ class KPIWeekRepository:
         rows = [kpi.model_dump() for kpi in kpis]
 
         if not rows:
-            df = pl.DataFrame([])
-        else:
-            df = pl.DataFrame(rows)
+            return
+
+        df = pl.DataFrame(rows)
 
         if self.file_path.exists():
             existing = pl.read_parquet(self.file_path)
-            df = pl.concat([existing, df], how="vertical")
+            final_df = df
 
-        df.write_parquet(self.file_path)
+            if not existing.is_empty():
+                new_keys = df.select(["season", "season_week"])
+
+                existing = existing.join(
+                    new_keys,
+                    on=["season", "season_week"],
+                    how="anti",
+                )
+
+                final_df = pl.concat([existing, df], how="vertical")
+
+        final_df.write_parquet(self.file_path)
+
 
     def load(self) -> pl.DataFrame:
         if not self.file_path.exists():
