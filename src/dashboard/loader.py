@@ -4,7 +4,6 @@ from pathlib import Path
 from src.dashboard.models import DashboardDataV1
 
 
-#-- - Me gustan los metodos encadenados, vamos como se pueden implementar
 class DashboardLoader:
     def __init__(self, path: str = "data/outputs/kpi_week.json") -> None:
         self.path = Path(path)

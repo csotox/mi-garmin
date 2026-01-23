@@ -1,3 +1,4 @@
+from src.dashboard.builder import DashboardBuilder
 from src.dashboard.loader import DashboardLoader
 
 TEMPORADA_CODE_DEFAULT = "T2026"
@@ -14,8 +15,13 @@ def main():
 
     #-- - 1.
     #-- - Leer archivos json
-    week = DashboardLoader().load().parse()
-    print(f"Datos de la semana {week}")
+    #-- - OJO estoy usando dashboard_v1.json es un json fake para pruebas
+    #-- -     para tener los datos necesarios para generar el dashboard
+    data = DashboardLoader("data/outputs/dashboard_v1.json").load().parse()
+
+    #-- - 2.
+    #-- - Generación de dashboard
+    DashboardBuilder(data).build_console()
 
     printx("-- - Dashboard generado -- -")
 

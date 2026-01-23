@@ -1,33 +1,56 @@
 from datetime import date
+from typing import Optional
 
 from pydantic import BaseModel
 
 
 class SeasonInfo(BaseModel):
     code: str
+    name: str
+    year: int
+    current_week: int
+    week_start: date
+    week_end: date
+
+
+class SummaryCards(BaseModel):
+    total_km: float
+    total_ascent_m: int
+    total_time_min: int
+    total_sessions: int
+
+
+class WeeklySeries(BaseModel):
+    week: int
+    km: float
+    ascent_m: int
+    sessions: int
+    delta_pct: Optional[float]
+
+
+class Microcycle(BaseModel):
+    week: int
+
+
+class DashboardSeason(BaseModel):
+    code: str
     season: int
     name: str
     start_date: date
     weeks: int
 
-
-class KPIWeek(BaseModel):
-    season: int
-    season_week: int
-    season_code: str
-    week_start: date
-    week_end: date
-    sessions: int
-    distance_km: float
-    time_min: float
-    ascent_m: int
-    descent_m: int
-    avg_heart_rate: float
-    max_heart_rate: int
+    year: int | None = None
+    current_week: int | None = None
+    week_start: date | None = None
+    week_end: date | None = None
 
 
 class DashboardDataV1(BaseModel):
     schema_version: str
-    season: SeasonInfo
-    generated_at: str
-    weeks: list[KPIWeek]
+    season: DashboardSeason
+
+    weeks: list[dict]
+
+    summary_cards: SummaryCards
+    weekly_series: list[WeeklySeries] = []
+    microcycles: list[Microcycle] = []
