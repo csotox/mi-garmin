@@ -1,5 +1,6 @@
 from src.dashboard.builder import DashboardBuilder
 from src.dashboard.loader import DashboardLoader
+from src.dashboard.matplotlib_dashboard import MatplotlibDashboard
 
 TEMPORADA_CODE_DEFAULT = "T2026"
 
@@ -21,7 +22,8 @@ def main():
 
     #-- - 2.
     #-- - Generación de dashboard
-    DashboardBuilder(data).build_console()
+    # DashboardBuilder(data).build_console()
+    MatplotlibDashboard(data).build()
 
     printx("-- - Dashboard generado -- -")
 
