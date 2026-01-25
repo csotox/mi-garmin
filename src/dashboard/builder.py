@@ -1,20 +1,17 @@
 from src.dashboard.models import DashboardDataV1
-from src.dashboard.render import (
-    render_cards,
-    render_header,
-    render_weekly_chart,
-    render_weeks_table,
-)
+from src.dashboard.renderers.base import DashboardRenderer
 
 
 class DashboardBuilder:
-    def __init__(self, data: DashboardDataV1) -> None:
+
+    def __init__(self, data: DashboardDataV1, renderer: DashboardRenderer):
         self.data = data
+        self.renderer = renderer
 
-    def build_console(self):
-        render_header(self.data.season)
-        render_cards(self.data.summary_cards)
-        render_weeks_table(self.data.weekly_series)
-        render_weekly_chart(self.data.weekly_series, self.data.microcycles)
-
+    def build(self):
+        self.renderer.render_header(self.data)
+        self.renderer.render_cards(self.data)
+        self.renderer.render_weeks_table(self.data)
+        self.renderer.render_weekly_chart(self.data)
+        self.renderer.finalize()
         return self

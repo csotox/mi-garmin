@@ -11,6 +11,10 @@ run-dashboard:
 	clear
 	python3 dashboard-garmin.py
 
+run-dashboard-consola:
+	clear
+	python3 dashboard-garmin.py consola
+
 test:
 	clear
 	pytest -v

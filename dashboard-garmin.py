@@ -1,6 +1,9 @@
+import sys
+
 from src.dashboard.builder import DashboardBuilder
 from src.dashboard.loader import DashboardLoader
-from src.dashboard.matplotlib_dashboard import MatplotlibDashboard
+from src.dashboard.renderers.consola_dash import ConsolaRenderer
+from src.dashboard.renderers.matplotlib_dash import MatplotlibRenderer
 
 TEMPORADA_CODE_DEFAULT = "T2026"
 
@@ -14,6 +17,9 @@ def printx(msj: object = '') -> None:
 def main():
     printx("-- - Generando Dashboard de entrenamiento de Garmin Connect -- -")
 
+    #-- - Argumento vía consola
+    modo = sys.argv[1] if len(sys.argv) > 1 else "matplotlib"
+
     #-- - 1.
     #-- - Leer archivos json
     #-- - OJO estoy usando dashboard_v1.json es un json fake para pruebas
@@ -22,8 +28,12 @@ def main():
 
     #-- - 2.
     #-- - Generación de dashboard
-    # DashboardBuilder(data).build_console()
-    MatplotlibDashboard(data).build()
+    if modo == "consola":
+        renderer = ConsolaRenderer()
+    else:
+        renderer = MatplotlibRenderer(mode="window")
+
+    DashboardBuilder(data, renderer).build()
 
     printx("-- - Dashboard generado -- -")
 
