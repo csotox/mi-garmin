@@ -54,6 +54,7 @@ def read_raw_fit_activities() -> tuple[list[ActivitySummary], list, list]:
 
     return activities, all_laps, all_records
 
+
 def main():
     printx("-- - Iniciando Automatización de Garmin Connect -- -")
 
@@ -61,7 +62,7 @@ def main():
     activities, laps, records = read_raw_fit_activities()
 
     #-- - Transformar data a DataFrames
-    df_activity = activity_summary_to_df(activities[0])         # Vamos poco a poco
+    df_activity = activity_summary_to_df(activities)
     df_laps = laps_to_df(laps)
     df_records = records_to_df(records)
 
