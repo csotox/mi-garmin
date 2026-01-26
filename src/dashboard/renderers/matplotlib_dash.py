@@ -12,7 +12,6 @@ COLOR_ENCABEZA = "#e8f4fb"
 
 class MatplotlibRenderer(DashboardRenderer):
 
-
     def __init__(self, mode="window", output_path="data/outputs/dashboard_v1.png"):
         self.mode = mode
         self.output_path = output_path
@@ -33,14 +32,21 @@ class MatplotlibRenderer(DashboardRenderer):
     def render_cards(self, data):
         cards = data.summary_cards
 
+        # Calculo la media semanal
+        weeks = data.weekly_series
+
+        prom_km = sum(w.km for w in weeks) / len(weeks)
+        prom_des = sum(w.ascent_m for w in weeks) / len(weeks)
+        prom_time_min = minutes_to_hhmm(round(cards.total_time_min / len(weeks)))
+
         values = [
-            ("Sesiones", str(cards.total_sessions)),
-            ("Km acumulados", f"{cards.total_km:.0f} km"),
-            ("Desnivel +", f"{cards.total_ascent_m:,} m".replace(",", ".")),
-            ("Tiempo", f"{minutes_to_hhmm(int(cards.total_time_min))}"),
+            ("Sesiones", str(cards.total_sessions), ""),
+            ("Km acumulados", f"{cards.total_km:.0f} km", f"({prom_km:.1f} km/semana)"),
+            ("Desnivel +", f"{cards.total_ascent_m:,} m".replace(",", "."), f"({prom_des:.1f} m/semana)"),
+            ("Tiempo", f"{minutes_to_hhmm(int(cards.total_time_min))}", f"({prom_time_min} min/semana)"),
         ]
 
-        for i, (title, value) in enumerate(values):
+        for i, (title, value, sub) in enumerate(values):
             ax = self.fig.add_subplot(self.gs[1, i])
             ax.axis("off")
 
@@ -50,6 +56,7 @@ class MatplotlibRenderer(DashboardRenderer):
 
             ax.text(0.06, 0.65, title, fontsize=10, color="#666", transform=ax.transAxes)
             ax.text(0.06, 0.30, value, fontsize=18, weight="bold", transform=ax.transAxes)
+            ax.text(0.06, 0.15, sub, fontsize=10, color="#666", transform=ax.transAxes)
 
 
     def render_weeks_table(self, data):
