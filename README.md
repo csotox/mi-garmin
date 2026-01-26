@@ -44,6 +44,9 @@ mi-garmin/
 │  │  ├─ repository.py           # Lee los archivos parquet (raw)
 │  │  ├─ season_repository.py    # Calculos de temporada
 │  │  └─ season_service.py       # Helper/utils para calculos de config de la temporada
+│  ├─ dashboard/                 # Generación del Dashboard
+│  │  ├─ renders/                # Templates para generar los dashboard
+│  │  └─ files.varios            # 
 │  ├─ etl/                # Código ETL
 │  │  ├─ extract.py       # Lectura de carpeta raw_data
 │  │  ├─ transform.py     # Procesamiento y normalización de los datos
