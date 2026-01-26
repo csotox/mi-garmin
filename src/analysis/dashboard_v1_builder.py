@@ -43,6 +43,8 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
 
         weekly_series.append({
             "week": w.season_week,
+            "week_start": w.week_start,
+            "week_end": w.week_end,
             "km": round(w.distance_km, 2),
             "ascent_m": w.ascent_m,
             "sessions": w.sessions,

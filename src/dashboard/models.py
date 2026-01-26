@@ -23,6 +23,8 @@ class SummaryCards(BaseModel):
 class WeeklySeries(BaseModel):
     week: int
     km: float
+    week_start: date
+    week_end: date
     ascent_m: int
     sessions: int
     delta_pct: Optional[float]
