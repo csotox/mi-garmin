@@ -38,8 +38,11 @@ def get_data_kpi_week_from_activity(df_activity: pl.DataFrame, temporada:SeasonC
 
     #-- - Agrupamos por semana y actividad
     # Agrupación semanal por fecha + tipo de actividad
+    #-- - 
+    #-- - [TODO] Por ahora saco del group by el activity_type
+    #-- - Probablemente más adelante necesite separar por tipo de actividad
     out_temp = (
-        df.group_by(["season_week", "activity_type"])
+        df.group_by(["season_week"])
         .agg(
             pl.col("day").min().alias("week_start"),
             pl.col("day").max().alias("week_end"),
