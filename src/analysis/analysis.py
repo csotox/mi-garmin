@@ -72,11 +72,11 @@ def get_data_kpi_week_from_activity(df_activity: pl.DataFrame, temporada:SeasonC
                 week_start=week_start,
                 week_end=week_end,
                 sessions=row["sessions"],
-                distance_km=row["distance_km"],
-                time_min=row["time_min"],
+                distance_km=round(row["distance_km"], 2),
+                time_min=round(row["time_min"], 2),
                 ascent_m=row["ascent_m"],
                 descent_m=row["descent_m"],
-                avg_heart_rate=row["avg_heart_rate"],
+                avg_heart_rate=round(row["avg_heart_rate"], 2),
                 max_heart_rate=row["max_heart_rate"],
             )
         )
