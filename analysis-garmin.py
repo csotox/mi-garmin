@@ -1,4 +1,8 @@
+import json
+from pathlib import Path
+
 from src.analysis.analysis import get_data_kpi_week_from_activity
+from src.analysis.dashboard_v1_builder import build_dashboard_v1
 from src.analysis.kpi_week_exporter import KPIWeekExporter
 from src.analysis.kpi_week_repository import KPIWeekRepository
 from src.analysis.repository import load_activity_summary
@@ -44,6 +48,14 @@ def main():
     #-- - Exportación a JSON (De aquí se genera el dashboard)
     exporter = KPIWeekExporter(season=temporada)
     exporter.export_all()
+
+    data_for_json = build_dashboard_v1(temporada, kpis_week)
+
+    output_path = Path("data/outputs/dashboard_v1.json")
+    output_path.write_text(
+        json.dumps(data_for_json, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
 
     printx("-- - Análisis finalizado -- -")
 
