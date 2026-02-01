@@ -52,6 +52,8 @@ mi-garmin/
 │  │  ├─ transform.py     # Procesamiento y normalización de los datos
 │  │  └─ load.py          # Actualización de archivos Parquet
 │  └─ models/             # Models de pydantic
+│  └─ utils/              # Utilidades / Helpres
+│  │  └─ printx.py        # Salida por consola, progress bar
 │  ├─ export.py           # parquet -> JSON (Generar json para análisis)
 │  └─ reports.py          # Generación de tablero analítico
 ├─ tests/
