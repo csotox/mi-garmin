@@ -9,15 +9,11 @@ from src.etl.extract import get_activity_laps, get_activity_records, get_activit
 from src.etl.load import write_parquet
 from src.etl.transform import activity_summary_to_df, laps_to_df, records_to_df
 from src.models.activity import ActivitySummary
+from src.utils.printx import Console, Progress
 
 PATH_DATA_RAW = 'data/raw_data'
 PATH_DATA_PARQUET = 'data/parquet'
-
-#-- - Probablemente esta función sea temporal, quiero ver como se comporta cuando muestre mensajes en
-#-- - consola. Me gustaria agregar color y probablemente barras de progreso. Por ahora lo mantenemos
-#-- - simple. Si no se logra el objetivo, siempre se puede usar logging.
-def printx(msj: object = '') -> None:
-    print(msj)
+output = Console()
 
 #-- - Lectura de datos desde la carpeta data/raw_data/...
 #-- -
@@ -38,25 +34,29 @@ def read_raw_fit_activities() -> tuple[list[ActivitySummary], list, list]:
     fit_files = list(base_path.glob("*.fit"))
 
     fit_count = len(fit_files)
-    printx(f"Procesando {fit_count} archivos")
+    output.info(f"Procesando {fit_count} archivos")
 
-    for item_file in fit_files:
-        data = FitFile( str(item_file) )
+    with Progress(total=fit_count, bar_length=40) as pbar:
+        for item_file in fit_files:
 
-        summary = get_activity_summary(data)
-        activities.append(summary)
+            pbar.update()
 
-        laps = get_activity_laps(data)
-        all_laps.extend(laps)
+            data = FitFile( str(item_file) )
 
-        records = get_activity_records(data)
-        all_records.extend(records)
+            summary = get_activity_summary(data)
+            activities.append(summary)
+
+            laps = get_activity_laps(data)
+            all_laps.extend(laps)
+
+            records = get_activity_records(data)
+            all_records.extend(records)
 
     return activities, all_laps, all_records
 
 
 def main():
-    printx("-- - Iniciando Automatización de Garmin Connect -- -")
+    output.info("-- - Iniciando Automatización de Garmin Connect -- -")
 
     #-- - Leer archivos .fit para data de actividad deportiva
     activities, laps, records = read_raw_fit_activities()
@@ -73,10 +73,10 @@ def main():
 
     #-- - Validación de todo ok
     df_check = pl.read_parquet(f"{PATH_DATA_PARQUET}/activity_summary.parquet")
-    printx(df_check)
+    print(df_check)
 
+    output.info("-- - Automatización finalizada -- -")
 
-    printx("-- - Automatización finalizada -- -")
 
 if __name__ == "__main__":
     main()
