@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import polars as pl
@@ -44,7 +44,7 @@ class KPIWeekExporter:
                 "start_date": self.season.start_date.isoformat(),
                 "weeks": self.season.weeks,
             } if self.season else None,
-            "generated_at": datetime.now(UTC).isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "weeks": df.to_dicts() if not df.is_empty() else [],
         }
 

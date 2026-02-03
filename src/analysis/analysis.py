@@ -12,7 +12,7 @@ from src.models.season_config import SeasonConfig
 #-- - Bases para calculo de kpis semanal
 def get_data_kpi_week_from_activity(df_activity: pl.DataFrame, temporada:SeasonConfig) -> list[DataKPIWeek]:
     if df_activity.is_empty():
-        return [DataKPIWeek()]
+        return []
 
     #-- - Normalizamos unidades: distancia (m->km) y tiempo (s->min)
     df = df_activity.with_columns(
