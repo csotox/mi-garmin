@@ -15,6 +15,8 @@ run-dashboard-consola:
 	clear
 	python3 dashboard-garmin.py consola
 
+run-all: run-etl run-analisis run-dashboard
+
 test:
 	clear
 	pytest -v
