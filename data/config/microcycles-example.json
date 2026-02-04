@@ -1,0 +1,18 @@
+{
+  "T26.01": {
+    "type": "base",
+    "meta_km": 10
+  },
+  "T26.02": {
+    "type": "carga",
+    "meta_km": 12
+  },
+  "T26.03": {
+    "type": "pico",
+    "meta_km": 13
+  },
+  "T26.04": {
+    "type": "descarga",
+    "meta_km": 10
+  }
+}

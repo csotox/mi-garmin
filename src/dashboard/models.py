@@ -30,9 +30,13 @@ class WeeklySeries(BaseModel):
     delta_pct: Optional[float]
 
 
-class Microcycle(BaseModel):
+class Mesocycle(BaseModel):
     week: int
 
+
+class Microcycle(BaseModel):
+    type: str
+    meta_km: float
 
 class DashboardSeason(BaseModel):
     code: str
@@ -55,4 +59,5 @@ class DashboardDataV1(BaseModel):
 
     summary_cards: SummaryCards
     weekly_series: list[WeeklySeries] = []
-    microcycles: list[Microcycle] = []
+    mesocycles: list[Mesocycle] = []
+    microcycles: dict[int, Microcycle] = {}

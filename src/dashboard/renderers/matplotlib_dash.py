@@ -8,7 +8,9 @@ from src.dashboard.renderers.base import DashboardRenderer
 
 COLOR_FONDO    = "#e6e6e6"
 COLOR_ENCABEZA = "#e8f4fb"
-
+COLOR_W_HECHA  = "#c68642"
+COLOR_W_FUTURA = "#E8E5E5"
+COLOR_W_NONE   = "#dddddd"
 
 class MatplotlibRenderer(DashboardRenderer):
 
@@ -122,17 +124,36 @@ class MatplotlibRenderer(DashboardRenderer):
     def render_weekly_chart(self, data):
         ax = self.fig.add_subplot(self.gs[2, :])
 
-        weeks = data.weekly_series
-        microcycles = {m.week for m in data.microcycles}
+        weeks = build_weeks_dict(data.weekly_series)
+        mesocycles_weeks = {m.week for m in data.mesocycles}
+        microcycle_weeks = data.microcycles
 
-        x = [w.week for w in weeks]
-        km = [w.km for w in weeks]
-        delta = [
-            w.delta_pct if w.delta_pct is not None else math.nan
-            for w in weeks
-        ]
+        x = []
+        km = []
+        delta = []
+        colors = []
 
-        ax.bar(x, km, alpha=0.7, label="Km")
+        for w in range(1, data.season.weeks + 1):
+            x.append(w)
+            delta.append(math.nan)          # Por ahora lo dejo fuera, tengo que pensar bien como incluirlo
+
+            if w in weeks:
+                # Semanas entrenadas
+                w_km = weeks[w].km
+
+                km.append(w_km)
+                colors.append(COLOR_W_HECHA)
+            elif w in microcycle_weeks:
+                # Semana futura planificada
+                km.append(microcycle_weeks[w].meta_km)
+                colors.append(COLOR_W_FUTURA)
+            else:
+                # Semana futura sin datos
+                km.append(0)
+                colors.append(COLOR_W_NONE)
+
+        ax.bar(x, km, color=colors, alpha=0.85, label="Km")
+
 
         max_week = data.season.weeks
 
@@ -140,20 +161,18 @@ class MatplotlibRenderer(DashboardRenderer):
         ax.set_xticks(all_weeks)
         ax.set_xlim(0.5, max_week + 0.5)
 
-        ax.bar(x, km, alpha=0.7, label="Km")
-
         ax2 = ax.twinx()
-        ax2.plot(x, delta, color="orange", marker="o", label="Δ %")
+        ax2.plot(x, delta, color="orange", marker="o", label="Δ carga %")
 
-        for w in microcycles:
+        for w in mesocycles_weeks:
             ax.axvline(w + 0.5, color="gray", linestyle="--", alpha=0.4)
 
-        microcycles_sorted = sorted(microcycles)
+        mesocycles_sorted = sorted(mesocycles_weeks)
 
         start = 0.5
         shade = False
 
-        for w in microcycles_sorted:
+        for w in mesocycles_sorted:
             end = w + 0.5
 
             if shade:
@@ -161,8 +180,6 @@ class MatplotlibRenderer(DashboardRenderer):
 
             start = end
             shade = not shade
-
-
 
         ax.set_title("Volumen semanal")
         ax.set_xlabel("Semana")
@@ -183,7 +200,17 @@ class MatplotlibRenderer(DashboardRenderer):
 
         plt.close()
 
+
 def minutes_to_hhmm(total_minutes: int) -> str:
     hours = total_minutes // 60
     minutes = total_minutes % 60
     return f"{hours:02d} h {minutes:02d} m"
+
+
+def build_weeks_dict(weeks):
+    r = {}
+
+    for w in weeks:
+        r[w.week] = w
+
+    return r
