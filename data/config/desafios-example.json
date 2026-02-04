@@ -1,0 +1,6 @@
+{
+  "T2026": {
+    "30": { "fecha": "2026-06-15", "name": "Trail X", "km": 10, "desnivel": 300 },
+    "37": { "fecha": "2026-08-15", "name": "Trail X+1", "km": 21, "desnivel": 800 }
+  }
+}

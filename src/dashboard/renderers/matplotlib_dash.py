@@ -11,6 +11,7 @@ COLOR_ENCABEZA = "#e8f4fb"
 COLOR_W_HECHA  = "#c68642"
 COLOR_W_FUTURA = "#E8E5E5"
 COLOR_W_NONE   = "#dddddd"
+COLOR_DESAFIO  = "#c0392b"
 
 class MatplotlibRenderer(DashboardRenderer):
 
@@ -127,6 +128,7 @@ class MatplotlibRenderer(DashboardRenderer):
         weeks = build_weeks_dict(data.weekly_series)
         mesocycles_weeks = {m.week for m in data.mesocycles}
         microcycle_weeks = data.microcycles
+        desafios = data.desafios
 
         x = []
         km = []
@@ -164,6 +166,7 @@ class MatplotlibRenderer(DashboardRenderer):
         ax2 = ax.twinx()
         ax2.plot(x, delta, color="orange", marker="o", label="Δ carga %")
 
+        #-- - Dibujo los mesociclos y agrego sombras por zonas
         for w in mesocycles_weeks:
             ax.axvline(w + 0.5, color="gray", linestyle="--", alpha=0.4)
 
@@ -181,7 +184,37 @@ class MatplotlibRenderer(DashboardRenderer):
             start = end
             shade = not shade
 
-        ax.set_title("Volumen semanal")
+        #-- - Agrego los desafios
+        y_max = max(km) * 1.1
+
+        for week, comp in desafios.items():
+
+            # Línea vertical roja
+            ax.axvline(
+                week,
+                color=COLOR_DESAFIO,
+                linestyle="-",
+                linewidth=2,
+                alpha=0.8,
+                zorder=4
+            )
+
+            # Etiqueta
+            label = f"{comp.name}\n{int(comp.km)} km / +{int(comp.desnivel)} m\n{comp.fecha}"
+
+            ax.text(
+                week,
+                y_max,
+                label,
+                ha="center",
+                va="bottom",
+                fontsize=8,
+                color=COLOR_DESAFIO,
+                zorder=5
+            )
+
+
+        # ax.set_title("Volumen semanal")
         ax.set_xlabel("Semana")
         ax.set_ylabel("Km")
         ax2.set_ylabel("Δ %")

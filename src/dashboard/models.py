@@ -38,6 +38,14 @@ class Microcycle(BaseModel):
     type: str
     meta_km: float
 
+
+class Desafios(BaseModel):
+    fecha: str
+    name: str
+    km: float
+    desnivel: float
+
+
 class DashboardSeason(BaseModel):
     code: str
     season: int
@@ -61,3 +69,4 @@ class DashboardDataV1(BaseModel):
     weekly_series: list[WeeklySeries] = []
     mesocycles: list[Mesocycle] = []
     microcycles: dict[int, Microcycle] = {}
+    desafios: dict[int, Desafios] = {}

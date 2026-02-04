@@ -82,6 +82,7 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
         "weekly_series": weekly_series,
         "mesocycles": mesocycles,
         "microcycles": microcycles,
+        "desafios": read_desafios_config(season.code),
     }
 
 def read_microcycles_config() -> dict[int, dict[str, int | str]]:
@@ -105,3 +106,28 @@ def read_microcycles_config() -> dict[int, dict[str, int | str]]:
             continue
 
     return r
+
+
+def read_desafios_config(season_code: str) -> dict[int, dict]:
+    path = Path("data/config/desafios.json")
+    if not path.exists():
+        return {}
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+
+    season_data = data.get(season_code, {})
+    result = {}
+
+    for key, value in season_data.items():
+        try:
+            week = int(key)
+            result[week] = {
+                "fecha": value.get("fecha"),
+                "name": value.get("name"),
+                "km": value.get("km"),
+                "desnivel": value.get("desnivel"),
+            }
+        except ValueError:
+            continue
+
+    return result
