@@ -3,4 +3,5 @@ data/config/microcycles.json
 data/config/desafios.json
 data/parquet/*.parquet
 data/outputs/*.json
+data/outputs/*.png
 data/raw_data/fit_activities/*.fit

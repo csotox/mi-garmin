@@ -9,7 +9,9 @@ from src.dashboard.renderers.base import DashboardRenderer
 COLOR_FONDO    = "#e6e6e6"
 COLOR_ENCABEZA = "#e8f4fb"
 COLOR_W_HECHA  = "#c68642"
+COLOR_W_CERRO  = "#8e5ea2"
 COLOR_W_FUTURA = "#E8E5E5"
+COLOR_F_TRAIL  = "#C2BFBF"      # Semana futura en cerro / trail
 COLOR_W_NONE   = "#dddddd"
 COLOR_DESAFIO  = "#c0392b"
 
@@ -144,11 +146,17 @@ class MatplotlibRenderer(DashboardRenderer):
                 w_km = weeks[w].km
 
                 km.append(w_km)
-                colors.append(COLOR_W_HECHA)
+                if microcycle_weeks[w].type != "pico_cerro":
+                    colors.append(COLOR_W_HECHA)
+                else:
+                    colors.append(COLOR_W_CERRO)
             elif w in microcycle_weeks:
                 # Semana futura planificada
                 km.append(microcycle_weeks[w].meta_km)
-                colors.append(COLOR_W_FUTURA)
+                if microcycle_weeks[w].type != "pico_cerro":
+                    colors.append(COLOR_W_FUTURA)
+                else:
+                    colors.append(COLOR_F_TRAIL)
             else:
                 # Semana futura sin datos
                 km.append(0)
