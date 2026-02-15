@@ -28,11 +28,11 @@ class KPIWeekRepository:
             existing = pl.read_parquet(self.file_path)
 
             if not existing.is_empty():
-                new_keys = df.select(["season", "season_week"])
+                new_keys = df.select(["season", "season_week", "activity_type"])
 
                 existing = existing.join(
                     new_keys,
-                    on=["season", "season_week"],
+                    on=["season", "season_week", "activity_type"],
                     how="anti",
                 )
 

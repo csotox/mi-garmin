@@ -9,6 +9,7 @@ class DataKPIWeek(BaseModel):
     season: int = 0                    # Temporada de entrenamiento, ejemplo: 26 para 2026
     season_week: int = 0               # Número de semana dentro de la temporada
     season_code: str = ""              # Código de temporada, ejemplo: T26.10 para el año 2026 y semana 10
+    activity_type: str = ""            # Tipo de actividad / ejercicio
 
     week_start: date                   # Fecha inicio de la semana
     week_end: date                     # Último entreno de la semana
