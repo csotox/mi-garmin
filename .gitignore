@@ -1,6 +1,7 @@
 __pycache__
 data/config/microcycles.json
 data/config/desafios.json
+data/config/override-type.json
 data/parquet/*.parquet
 data/outputs/*.json
 data/outputs/*.png

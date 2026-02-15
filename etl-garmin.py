@@ -43,7 +43,7 @@ def read_raw_fit_activities() -> tuple[list[ActivitySummary], list, list]:
 
             data = FitFile( str(item_file) )
 
-            summary = get_activity_summary(data)
+            summary = get_activity_summary(data, item_file.name)
             activities.append(summary)
 
             laps = get_activity_laps(data)
@@ -73,7 +73,6 @@ def main():
 
     #-- - Validación de todo ok
     df_check = pl.read_parquet(f"{PATH_DATA_PARQUET}/activity_summary.parquet")
-    print(df_check)
 
     output.info("-- - Automatización finalizada -- -")
 

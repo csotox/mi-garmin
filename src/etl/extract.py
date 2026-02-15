@@ -10,7 +10,7 @@ from src.models.lap import LapSummary
 from src.models.record import RecordPoint
 
 
-def get_activity_summary(fitfile: FitFile) -> ActivitySummary:
+def get_activity_summary(fitfile: FitFile, file_name: str) -> ActivitySummary:
     session = next(fitfile.get_messages("session"))
 
     data: Dict[str, Any] = {
@@ -19,6 +19,7 @@ def get_activity_summary(fitfile: FitFile) -> ActivitySummary:
     }
 
     summary = ActivitySummary(
+        file_name=file_name,
         start_time=data["start_time"],
         sport=data["sport"],
         activity_type=activity_type(data["sport"]),

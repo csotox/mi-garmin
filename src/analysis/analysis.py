@@ -4,6 +4,7 @@ import polars as pl
 
 from src.analysis.activity_type import activity_type
 from src.analysis.season_service import build_season_code, calculate_season_week, get_season_week_range
+from src.analysis.transform import load_overrides
 from src.models.data_kpi_week import DataKPIWeek
 from src.models.season_config import SeasonConfig
 
@@ -34,7 +35,40 @@ def get_data_kpi_week_from_activity(df_activity: pl.DataFrame, temporada:SeasonC
         pl.col("sport")
         .map_elements(activity_type)
         .alias("activity_type")
-)
+    )
+
+    #-- - Reclasificar algunas actividades según necesidad
+    #-- - Ej.: run -> trail
+    overrides = load_overrides()
+
+    if overrides:
+        # df = df.with_columns(
+        #     pl.when(pl.col("file_name").is_in(list(overrides.keys())))
+        #     .then(
+        #         pl.col("file_name")
+        #         .map_elements(lambda x: overrides.get(x, None))
+        #     )
+        #     .otherwise(pl.col("activity_type"))
+        #     .fill_null(pl.col("activity_type"))
+        #     .alias("activity_type")
+        # )
+        over_aux = pl.DataFrame({
+            "file_name": list(overrides.keys()),
+            "override_type": list(overrides.values())
+        })
+
+        df = df.join(over_aux, on="file_name", how="left")
+
+        df = df.with_columns(
+            pl.coalesce(
+                pl.col("override_type"),
+                pl.col("activity_type")
+            ).alias("activity_type")
+        ).drop("override_type")
+
+
+
+
 
     #-- - Agrupamos por semana y actividad
     #-- - Agrupación semanal por fecha + tipo de actividad
