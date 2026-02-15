@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import polars as pl
+
 from src.models.data_kpi_week import DataKPIWeek
 from src.models.season_config import SeasonConfig
 
@@ -45,34 +47,28 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
         "total_sessions": sum(w.sessions for w in weeks_sorted),
     }
 
-    weekly_series = []
-    # prev_km = None
-
-    for w in weeks_sorted:
-        # [TODO] Dejo el delta fuera, tengo que investigar bien como calcularlo y como
-        # incluirlo en el dashboard y si me dice realmente algo
-        delta = None
-        # week_type = None
-        # if w.season_week in microcycles:
-        #     week_type = microcycles[w.season_week]["type"]
-
-        # if week_type != "descarga":
-        #     if prev_km and prev_km > 0:
-        #         delta = round((w.distance_km - prev_km) / prev_km * 100, 1)
-
-        #     prev_km = w.distance_km
-
-        weekly_series.append({
-            "week": w.season_week,
-            "week_start": w.week_start,
-            "week_end": w.week_end,
-            "km": round(w.distance_km, 2),
-            "ascent_m": w.ascent_m,
-            "sessions": w.sessions,
-            "delta_pct": delta,
-        })
-
-        # prev_km = w.distance_km
+    weeks_r = build_weekly_running_summary(weeks_sorted)
+    # [TODO] Dejo el delta fuera, tengo que investigar bien como calcularlo y como
+    # incluirlo en el dashboard y si me dice realmente algo
+    weekly_series = (
+        weeks_r
+        .with_columns([
+            pl.col("season_week").alias("week"),
+            pl.col("distance_km").round(2).alias("km"),
+            pl.lit(None).alias("delta_pct"),
+        ])
+        .select([
+            "week",
+            "week_start",
+            "week_end",
+            "km",
+            "ascent_m",
+            "sessions",
+            "delta_pct",
+        ])
+        .sort("week")
+        .to_dicts()
+    )
 
     return {
         "schema_version": "v1",
@@ -131,3 +127,29 @@ def read_desafios_config(season_code: str) -> dict[int, dict]:
             continue
 
     return result
+
+
+def build_weekly_running_summary(weeks: list[DataKPIWeek]) -> pl.DataFrame:
+    df = pl.DataFrame([w.model_dump() for w in weeks])
+
+    # Dejo solamente las actividades de runing y trail
+    # así evito problemas con otras actividades
+    df_running = df.filter(
+        pl.col("activity_type").is_in(["run", "trail"])
+    )
+
+    out = (
+        df_running
+        .group_by("season_week")
+        .agg(
+            pl.col("distance_km").sum().alias("distance_km"),
+            pl.col("ascent_m").sum().alias("ascent_m"),
+            pl.col("time_min").sum().alias("time_min"),
+            pl.col("sessions").sum().alias("sessions"),
+            pl.col("week_start").first(),
+            pl.col("week_end").first(),
+        )
+        .sort("season_week")
+    )
+
+    return out
