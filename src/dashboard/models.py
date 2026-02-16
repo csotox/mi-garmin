@@ -42,6 +42,10 @@ class WeeklyStrength(BaseModel):
 class WeeklyMin(BaseModel):
     week: int
     min: float
+    rolling_3: float
+    pct_change: float
+    is_overload: bool
+
 
 class Mesocycle(BaseModel):
     week: int
@@ -67,7 +71,7 @@ class DashboardSeason(BaseModel):
     weeks: int
 
     year: int | None = None
-    current_week: int | None = None
+    current_week: int = 1               # No debe ser None nunca
     week_start: date | None = None
     week_end: date | None = None
 

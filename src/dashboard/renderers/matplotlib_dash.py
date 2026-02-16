@@ -2,7 +2,7 @@ import math
 
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Patch, Rectangle
 
 from src.dashboard.renderers.base import DashboardRenderer
 
@@ -15,6 +15,7 @@ COLOR_F_TRAIL  = "#C2BFBF"      # Semana futura en cerro / trail
 COLOR_W_NONE   = "#dddddd"
 COLOR_DESAFIO  = "#c0392b"
 COLOR_W_MIN    = "#2c3e50"
+COLOR_W_INC    = "#f8c471"
 
 class MatplotlibRenderer(DashboardRenderer):
 
@@ -249,22 +250,52 @@ class MatplotlibRenderer(DashboardRenderer):
         ax = self.fig.add_subplot(self.gs[3, :])
 
         weekly_min = data.weekly_min
+        current_week = data.season.current_week
 
         x = []
-        min = []
+        load = []
+        rolling = []
 
         for item in weekly_min:
             x.append(item.week)
-            min.append(item.min)
 
+            if item.week <= current_week:
+                load.append(item.min)
+                rolling.append(item.rolling_3)
+            else:
+                load.append(math.nan)
+                rolling.append(math.nan)
+
+        # Carga semana
         ax.plot(
             x,
-            min,
+            load,
             color=COLOR_W_MIN,
-            linewidth=2.5,
+            linewidth=2.0,
             marker="o",
-            label="Carga combinada"
+            label="Carga semanal"
         )
+
+        # Línea media móvil 3 semanas
+        ax.plot(
+            x,
+            rolling,
+            color=COLOR_W_HECHA,
+            linewidth=1.2,
+            linestyle="--",
+            label="Media móvil (3 sem)"
+        )
+
+        # Zonas de posible sobrecarga
+        for item in weekly_min:
+            if item.week <= current_week and item.is_overload:
+                ax.axvspan(
+                    item.week - 0.5,
+                    item.week + 0.5,
+                    color=COLOR_W_INC,
+                    alpha=0.25
+                )
+
 
         ax.set_xlabel("Semana")
         ax.set_ylabel("Carga (min ajustados)")
@@ -272,7 +303,18 @@ class MatplotlibRenderer(DashboardRenderer):
         ax.set_xticks(range(1, data.season.weeks + 1))
 
         ax.grid(True, axis="y", alpha=0.3)
-        ax.legend()
+
+        overload_patch = Patch(
+            facecolor=COLOR_W_INC,
+            edgecolor='none',
+            alpha=0.25,
+            label="Incremento >15% semanal"
+        )
+
+        handles, labels = ax.get_legend_handles_labels()
+        handles.append(overload_patch)
+        ax.legend(handles=handles)
+        # ax.legend()
 
 
     def finalize(self):

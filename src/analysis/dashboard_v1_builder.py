@@ -200,6 +200,7 @@ def build_weekly_strength_summary(weeks: list[DataKPIWeek]) -> pl.DataFrame:
 
     return out
 
+
 def build_combined_load_series(
     weekly_running: list[dict],
     weekly_strength: list[dict],
@@ -209,7 +210,7 @@ def build_combined_load_series(
     running_dict = {w["week"]: w for w in weekly_running}
     strength_dict = {w["week"]: w for w in weekly_strength}
 
-    out = []
+    raw_load = []
 
     for week in range(1, total_weeks + 1):
         time_run = running_dict.get(week, {}).get("time_min", 0)
@@ -217,9 +218,48 @@ def build_combined_load_series(
 
         carga = time_run + (time_gym * 0.75)
 
+        raw_load.append(round(carga, 2))
+
+    #-- - Media móvil 3 semanas
+    rolling = []
+
+    for i in range(len(raw_load)):
+        if i >= 3:
+            window = raw_load[i-2:i+1]
+            rolling.append(round(sum(window) / 3, 2))
+        else:
+            rolling.append(0)
+
+    #-- - Salida
+    out = []
+
+    for week in range(1, total_weeks + 1):
         out.append({
             "week": week,
-            "min": round(carga, 2),
+            "min": raw_load[week - 1],
+            "rolling_3": rolling[week - 1],
         })
+
+    # Agrego calculo estadistico
+    loads = [w["min"] for w in out]
+
+    for i in range(len(out)):
+
+        # Rolling 3
+        if i >= 2:
+            out[i]["rolling_3"] = round(
+                (loads[i] + loads[i-1] + loads[i-2]) / 3, 2
+            )
+        else:
+            out[i]["rolling_3"] = 0
+
+        # % incremento
+        if i > 0 and loads[i-1] > 0:
+            pct = (loads[i] - loads[i-1]) / loads[i-1]
+            out[i]["pct_change"] = round(pct, 3)
+            out[i]["is_overload"] = pct > 0.15
+        else:
+            out[i]["pct_change"] = 0
+            out[i]["is_overload"] = False
 
     return out
