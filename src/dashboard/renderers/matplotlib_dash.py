@@ -14,7 +14,7 @@ COLOR_W_FUTURA = "#E8E5E5"
 COLOR_F_TRAIL  = "#C2BFBF"      # Semana futura en cerro / trail
 COLOR_W_NONE   = "#dddddd"
 COLOR_DESAFIO  = "#c0392b"
-COLOR_W_MIN    = "#2c3e50"
+COLOR_W_MIN    = "#34495e"
 COLOR_W_INC    = "#f8c471"
 
 class MatplotlibRenderer(DashboardRenderer):
@@ -139,7 +139,7 @@ class MatplotlibRenderer(DashboardRenderer):
         km = []
         delta = []
         colors = []
-        gym_minutes = []
+        ascent = []
 
         for w in range(1, data.season.weeks + 1):
             x.append(w)
@@ -148,8 +148,10 @@ class MatplotlibRenderer(DashboardRenderer):
             if w in weeks:
                 # Semanas entrenadas
                 w_km = weeks[w].km
+                w_asc = weeks[w].ascent_m / 100
 
                 km.append(w_km)
+                ascent.append(w_asc)
                 if microcycle_weeks[w].type != "pico_cerro":
                     colors.append(COLOR_W_HECHA)
                 else:
@@ -157,6 +159,7 @@ class MatplotlibRenderer(DashboardRenderer):
             elif w in microcycle_weeks:
                 # Semana futura planificada
                 km.append(microcycle_weeks[w].meta_km)
+                ascent.append(math.nan)
                 if microcycle_weeks[w].type != "pico_cerro":
                     colors.append(COLOR_W_FUTURA)
                 else:
@@ -164,13 +167,8 @@ class MatplotlibRenderer(DashboardRenderer):
             else:
                 # Semana futura sin datos
                 km.append(0)
+                ascent.append(math.nan)
                 colors.append(COLOR_W_NONE)
-
-            # Entrenamiento de preparación fisica
-            # if w in strength:
-            #     gym_minutes.append(strength[w].time_min)
-            # else:
-            #     gym_minutes.append(0)
 
         ax.bar(x, km, color=colors, alpha=0.85, label="Km")
 
@@ -181,12 +179,17 @@ class MatplotlibRenderer(DashboardRenderer):
         ax.set_xticks(all_weeks)
         ax.set_xlim(0.5, max_week + 0.5)
 
+        # Dibujo el desnivel + acumulado
         ax2 = ax.twinx()
-        # [TODO] Línea de desnivel positivo
-        # Por ahora muestro los minutos de carga de preparación fisica
-        # Aunque aquí me gustaria mostrar el desnivel corrido
-        # ax2.plot(x, gym_minutes, color="#555555", linewidth=2, marker="o", label="Min gym")
-        # ax2.set_ylim(0, max(gym_minutes) * 1.2)
+        ax2.plot(
+            x,
+            ascent,
+            color=COLOR_W_MIN,
+            linewidth=1,
+            linestyle="--",
+            marker="o",
+            label="Desnivel + (x100 m)"
+        )
 
         #-- - Dibujo los mesociclos y agrego sombras por zonas
         for w in mesocycles_weeks:
@@ -239,11 +242,12 @@ class MatplotlibRenderer(DashboardRenderer):
         # ax.set_title("Volumen semanal")
         ax.set_xlabel("Semana")
         ax.set_ylabel("Km")
-        # ax2.set_ylabel("Min gym")
+        ax2.set_ylabel("Desnivel + (x100 m)")
+        ax2.set_ylim(0, max(ascent) * 1.2 if max(ascent) > 0 else 1)
 
         ax.grid(True, axis="y", alpha=0.3)
         ax.legend(loc="upper left")
-        # ax2.legend(loc="upper right")
+        ax2.legend(loc="upper right")
 
 
     def render_weeks_min_chart(self, data):
