@@ -13,7 +13,8 @@ def activity_type(sport: str | None) -> str:
     if value in {"walking", "hiking"}:
         return "walk"
 
-    if value in {"hiit", "cardio"}:
+    # Según veo en los .fit, hiit es código 62
+    if value in {"62", "hiit", "cardio"}:
         return "gym"
 
     return "other"

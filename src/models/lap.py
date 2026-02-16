@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 class LapSummary(BaseModel):
     lap_index: int = Field(..., ge=0)
 
-    total_distance: float = Field(..., gt=0)
+    total_distance: float = Field(..., ge=0)
     total_timer_time: float = Field(..., gt=0)
 
     avg_heart_rate: Optional[int] = Field(None, gt=0)

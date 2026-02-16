@@ -128,6 +128,7 @@ class MatplotlibRenderer(DashboardRenderer):
         ax = self.fig.add_subplot(self.gs[2, :])
 
         weeks = build_weeks_dict(data.weekly_series)
+        strength = build_weeks_dict(data.weekly_strength)
         mesocycles_weeks = {m.week for m in data.mesocycles}
         microcycle_weeks = data.microcycles
         desafios = data.desafios
@@ -136,6 +137,7 @@ class MatplotlibRenderer(DashboardRenderer):
         km = []
         delta = []
         colors = []
+        gym_minutes = []
 
         for w in range(1, data.season.weeks + 1):
             x.append(w)
@@ -162,6 +164,12 @@ class MatplotlibRenderer(DashboardRenderer):
                 km.append(0)
                 colors.append(COLOR_W_NONE)
 
+            # Entrenamiento de preparación fisica
+            if w in strength:
+                gym_minutes.append(strength[w].time_min)
+            else:
+                gym_minutes.append(0)
+
         ax.bar(x, km, color=colors, alpha=0.85, label="Km")
 
 
@@ -172,7 +180,11 @@ class MatplotlibRenderer(DashboardRenderer):
         ax.set_xlim(0.5, max_week + 0.5)
 
         ax2 = ax.twinx()
-        ax2.plot(x, delta, color="orange", marker="o", label="Δ carga %")
+        # [TODO] Línea de desnivel positivo
+        # Por ahora muestro los minutos de carga de preparación fisica
+        # Aunque aquí me gustaria mostrar el desnivel corrido
+        ax2.plot(x, gym_minutes, color="#555555", linewidth=2, marker="o", label="Min gym")
+        ax2.set_ylim(0, max(gym_minutes) * 1.2)
 
         #-- - Dibujo los mesociclos y agrego sombras por zonas
         for w in mesocycles_weeks:
@@ -225,7 +237,7 @@ class MatplotlibRenderer(DashboardRenderer):
         # ax.set_title("Volumen semanal")
         ax.set_xlabel("Semana")
         ax.set_ylabel("Km")
-        ax2.set_ylabel("Δ %")
+        ax2.set_ylabel("Min gym")
 
         ax.grid(True, axis="y", alpha=0.3)
         ax.legend(loc="upper left")

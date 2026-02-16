@@ -10,7 +10,9 @@ class ActivitySummary(BaseModel):
     sport: str              # Tipo de actividad
     activity_type: str      # Normalización del tipo de actividad (run, walk, gym, other)
 
-    total_distance: float = Field(..., gt=0, description="Distancia total en metros")
+    # Cambio a ge porque algunas actividades no tienen desplazamiento
+    # Entonce ge es mayor o igual
+    total_distance: float = Field(..., ge=0, description="Distancia total en metros")
     total_timer_time: float = Field(..., gt=0, description="Tiempo activo en segundos")
 
     avg_heart_rate: Optional[int] = Field(None, gt=0)   # Pulso promedio

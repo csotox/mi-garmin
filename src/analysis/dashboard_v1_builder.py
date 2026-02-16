@@ -47,11 +47,10 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
         "total_sessions": sum(w.sessions for w in weeks_sorted),
     }
 
-    weeks_r = build_weekly_running_summary(weeks_sorted)
     # [TODO] Dejo el delta fuera, tengo que investigar bien como calcularlo y como
     # incluirlo en el dashboard y si me dice realmente algo
     weekly_series = (
-        weeks_r
+        build_weekly_running_summary(weeks_sorted)
         .with_columns([
             pl.col("season_week").alias("week"),
             pl.col("distance_km").round(2).alias("km"),
@@ -70,12 +69,30 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
         .to_dicts()
     )
 
+    weeks_strength = (
+        build_weekly_strength_summary(weeks_sorted)
+        .with_columns([
+            pl.col("season_week").alias("week")
+        ])
+        .select([
+            "week",
+            "week_start",
+            "week_end",
+            "time_min",
+            "sessions",
+        ])
+        .sort("week")
+        .to_dicts()
+    )
+
+
     return {
         "schema_version": "v1",
         "season": season_block,
         "weeks": weeks_block,
         "summary_cards": summary_cards,
         "weekly_series": weekly_series,
+        "weekly_strength": weeks_strength,
         "mesocycles": mesocycles,
         "microcycles": microcycles,
         "desafios": read_desafios_config(season.code),
@@ -144,6 +161,28 @@ def build_weekly_running_summary(weeks: list[DataKPIWeek]) -> pl.DataFrame:
         .agg(
             pl.col("distance_km").sum().alias("distance_km"),
             pl.col("ascent_m").sum().alias("ascent_m"),
+            pl.col("time_min").sum().alias("time_min"),
+            pl.col("sessions").sum().alias("sessions"),
+            pl.col("week_start").first(),
+            pl.col("week_end").first(),
+        )
+        .sort("season_week")
+    )
+
+    return out
+
+
+def build_weekly_strength_summary(weeks: list[DataKPIWeek]) -> pl.DataFrame:
+    df = pl.DataFrame([w.model_dump() for w in weeks])
+
+    df_gym = df.filter(
+        pl.col("activity_type") == "gym"
+    )
+
+    out = (
+        df_gym
+        .group_by("season_week")
+        .agg(
             pl.col("time_min").sum().alias("time_min"),
             pl.col("sessions").sum().alias("sessions"),
             pl.col("week_start").first(),

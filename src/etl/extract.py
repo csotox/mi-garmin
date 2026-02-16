@@ -18,6 +18,11 @@ def get_activity_summary(fitfile: FitFile, file_name: str) -> ActivitySummary:
         for field in session  # type: ignore[reportGeneralTypeIssues]
     }
 
+    # El .fit no siempre trae str para indicar el tipo de actividad
+    # valido cuando viene int
+    if isinstance( data["sport"], int ):
+        data["sport"] = str(data["sport"])
+
     summary = ActivitySummary(
         file_name=file_name,
         start_time=data["start_time"],
