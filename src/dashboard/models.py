@@ -27,6 +27,7 @@ class WeeklySeries(BaseModel):
     week_end: date
     ascent_m: int
     sessions: int
+    time_min: float
     delta_pct: Optional[float]
 
 
@@ -37,6 +38,10 @@ class WeeklyStrength(BaseModel):
     time_min: float
     sessions: int
 
+
+class WeeklyMin(BaseModel):
+    week: int
+    min: float
 
 class Mesocycle(BaseModel):
     week: int
@@ -76,6 +81,7 @@ class DashboardDataV1(BaseModel):
     summary_cards: SummaryCards
     weekly_series: list[WeeklySeries] = []
     weekly_strength: list[WeeklyStrength] = []
+    weekly_min: list[WeeklyMin] = []
     mesocycles: list[Mesocycle] = []
     microcycles: dict[int, Microcycle] = {}
     desafios: dict[int, Desafios] = {}

@@ -12,6 +12,7 @@ class DashboardBuilder:
         self.renderer.render_header(self.data)
         self.renderer.render_cards(self.data)
         self.renderer.render_weeks_table(self.data)
+        self.renderer.render_weeks_min_chart(self.data)
         self.renderer.render_weekly_chart(self.data)
         self.renderer.finalize()
         return self

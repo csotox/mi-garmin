@@ -15,6 +15,9 @@ class DashboardRenderer(ABC):
     def render_weekly_chart(self, data: DashboardDataV1): ...
 
     @abstractmethod
+    def render_weeks_min_chart(self, data: DashboardDataV1): ...
+
+    @abstractmethod
     def render_weeks_table(self, data: DashboardDataV1): ...
 
     @abstractmethod

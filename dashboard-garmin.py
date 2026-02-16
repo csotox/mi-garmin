@@ -24,7 +24,8 @@ def main():
     #-- - 2.
     #-- - Generación de dashboard
     if modo == "consola":
-        renderer = ConsolaRenderer()
+        # renderer = ConsolaRenderer()
+        ...
     else:
         renderer = MatplotlibRenderer(mode="window")
 

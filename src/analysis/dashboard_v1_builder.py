@@ -61,6 +61,7 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
             "week_start",
             "week_end",
             "km",
+            "time_min",
             "ascent_m",
             "sessions",
             "delta_pct",
@@ -85,6 +86,11 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
         .to_dicts()
     )
 
+    weeks_min = build_combined_load_series(
+        weekly_series,
+        weeks_strength,
+        season.weeks
+    )
 
     return {
         "schema_version": "v1",
@@ -93,6 +99,7 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
         "summary_cards": summary_cards,
         "weekly_series": weekly_series,
         "weekly_strength": weeks_strength,
+        "weekly_min": weeks_min,
         "mesocycles": mesocycles,
         "microcycles": microcycles,
         "desafios": read_desafios_config(season.code),
@@ -190,5 +197,29 @@ def build_weekly_strength_summary(weeks: list[DataKPIWeek]) -> pl.DataFrame:
         )
         .sort("season_week")
     )
+
+    return out
+
+def build_combined_load_series(
+    weekly_running: list[dict],
+    weekly_strength: list[dict],
+    total_weeks: int,
+) -> list[dict]:
+
+    running_dict = {w["week"]: w for w in weekly_running}
+    strength_dict = {w["week"]: w for w in weekly_strength}
+
+    out = []
+
+    for week in range(1, total_weeks + 1):
+        time_run = running_dict.get(week, {}).get("time_min", 0)
+        time_gym = strength_dict.get(week, {}).get("time_min", 0)
+
+        carga = time_run + (time_gym * 0.75)
+
+        out.append({
+            "week": week,
+            "min": round(carga, 2),
+        })
 
     return out

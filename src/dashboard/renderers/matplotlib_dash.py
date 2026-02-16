@@ -14,6 +14,7 @@ COLOR_W_FUTURA = "#E8E5E5"
 COLOR_F_TRAIL  = "#C2BFBF"      # Semana futura en cerro / trail
 COLOR_W_NONE   = "#dddddd"
 COLOR_DESAFIO  = "#c0392b"
+COLOR_W_MIN    = "#2c3e50"
 
 class MatplotlibRenderer(DashboardRenderer):
 
@@ -22,7 +23,7 @@ class MatplotlibRenderer(DashboardRenderer):
         self.output_path = output_path
 
         self.fig = plt.figure(figsize=(16, 9), constrained_layout=True)
-        self.gs = GridSpec(4, 4, figure=self.fig, height_ratios=[0.6, 1.2, 2.2, 1.2])
+        self.gs = GridSpec(5, 4, figure=self.fig, height_ratios=[0.6, 1.2, 2.2, 1.6, 1.2])
 
 
     def render_header(self, data):
@@ -65,7 +66,7 @@ class MatplotlibRenderer(DashboardRenderer):
 
 
     def render_weeks_table(self, data):
-        ax = self.fig.add_subplot(self.gs[3, :])
+        ax = self.fig.add_subplot(self.gs[4, :])
         ax.axis("off")
 
         weeks = data.weekly_series
@@ -165,10 +166,10 @@ class MatplotlibRenderer(DashboardRenderer):
                 colors.append(COLOR_W_NONE)
 
             # Entrenamiento de preparación fisica
-            if w in strength:
-                gym_minutes.append(strength[w].time_min)
-            else:
-                gym_minutes.append(0)
+            # if w in strength:
+            #     gym_minutes.append(strength[w].time_min)
+            # else:
+            #     gym_minutes.append(0)
 
         ax.bar(x, km, color=colors, alpha=0.85, label="Km")
 
@@ -183,8 +184,8 @@ class MatplotlibRenderer(DashboardRenderer):
         # [TODO] Línea de desnivel positivo
         # Por ahora muestro los minutos de carga de preparación fisica
         # Aunque aquí me gustaria mostrar el desnivel corrido
-        ax2.plot(x, gym_minutes, color="#555555", linewidth=2, marker="o", label="Min gym")
-        ax2.set_ylim(0, max(gym_minutes) * 1.2)
+        # ax2.plot(x, gym_minutes, color="#555555", linewidth=2, marker="o", label="Min gym")
+        # ax2.set_ylim(0, max(gym_minutes) * 1.2)
 
         #-- - Dibujo los mesociclos y agrego sombras por zonas
         for w in mesocycles_weeks:
@@ -237,11 +238,41 @@ class MatplotlibRenderer(DashboardRenderer):
         # ax.set_title("Volumen semanal")
         ax.set_xlabel("Semana")
         ax.set_ylabel("Km")
-        ax2.set_ylabel("Min gym")
+        # ax2.set_ylabel("Min gym")
 
         ax.grid(True, axis="y", alpha=0.3)
         ax.legend(loc="upper left")
-        ax2.legend(loc="upper right")
+        # ax2.legend(loc="upper right")
+
+
+    def render_weeks_min_chart(self, data):
+        ax = self.fig.add_subplot(self.gs[3, :])
+
+        weekly_min = data.weekly_min
+
+        x = []
+        min = []
+
+        for item in weekly_min:
+            x.append(item.week)
+            min.append(item.min)
+
+        ax.plot(
+            x,
+            min,
+            color=COLOR_W_MIN,
+            linewidth=2.5,
+            marker="o",
+            label="Carga combinada"
+        )
+
+        ax.set_xlabel("Semana")
+        ax.set_ylabel("Carga (min ajustados)")
+        ax.set_xlim(0.5, data.season.weeks + 0.5)
+        ax.set_xticks(range(1, data.season.weeks + 1))
+
+        ax.grid(True, axis="y", alpha=0.3)
+        ax.legend()
 
 
     def finalize(self):
