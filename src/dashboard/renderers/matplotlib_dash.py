@@ -133,7 +133,6 @@ class MatplotlibRenderer(DashboardRenderer):
         ax = self.fig.add_subplot(self.gs[2, :])
 
         weeks = build_weeks_dict(data.weekly_series)
-        strength = build_weeks_dict(data.weekly_strength)
         mesocycles_weeks = {m.week for m in data.mesocycles}
         microcycle_weeks = data.microcycles
         desafios = data.desafios

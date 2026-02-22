@@ -70,8 +70,8 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
         .to_dicts()
     )
 
-    weeks_strength = (
-        build_weekly_strength_summary(weeks_sorted)
+    weeks_gym = (
+        build_weekly_gym_summary(weeks_sorted)
         .with_columns([
             pl.col("season_week").alias("week")
         ])
@@ -88,7 +88,7 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
 
     weeks_min = build_combined_load_series(
         weekly_series,
-        weeks_strength,
+        weeks_gym,
         season.weeks
     )
 
@@ -98,7 +98,6 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
         "weeks": weeks_block,
         "summary_cards": summary_cards,
         "weekly_series": weekly_series,
-        "weekly_strength": weeks_strength,
         "weekly_min": weeks_min,
         "mesocycles": mesocycles,
         "microcycles": microcycles,
@@ -179,7 +178,7 @@ def build_weekly_running_summary(weeks: list[DataKPIWeek]) -> pl.DataFrame:
     return out
 
 
-def build_weekly_strength_summary(weeks: list[DataKPIWeek]) -> pl.DataFrame:
+def build_weekly_gym_summary(weeks: list[DataKPIWeek]) -> pl.DataFrame:
     df = pl.DataFrame([w.model_dump() for w in weeks])
 
     df_gym = df.filter(
@@ -203,20 +202,26 @@ def build_weekly_strength_summary(weeks: list[DataKPIWeek]) -> pl.DataFrame:
 
 def build_combined_load_series(
     weekly_running: list[dict],
-    weekly_strength: list[dict],
+    weekly_gym: list[dict],
     total_weeks: int,
 ) -> list[dict]:
 
     running_dict = {w["week"]: w for w in weekly_running}
-    strength_dict = {w["week"]: w for w in weekly_strength}
+    gym_dict = {w["week"]: w for w in weekly_gym}
 
     raw_load = []
 
     for week in range(1, total_weeks + 1):
         time_run = running_dict.get(week, {}).get("time_min", 0)
-        time_gym = strength_dict.get(week, {}).get("time_min", 0)
+        time_gym = gym_dict.get(week, {}).get("time_min", 0)
 
-        carga = time_run + (time_gym * 0.75)
+        #-- -
+        # En conversación con mi entrenador, quitar peso al trabajo de fortalecimiento
+        # No tiene mucho sentido, aunque son cargas he impacto difrentes, ambos
+        # generan fatiga y desgaste.
+        #-- -
+        # carga = time_run + (time_gym * 0.75)
+        carga = time_run + time_gym
 
         raw_load.append(round(carga, 2))
 
