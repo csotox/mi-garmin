@@ -71,8 +71,9 @@ class MatplotlibRenderer(DashboardRenderer):
         ax.axis("off")
 
         weeks = data.weekly_series
+        weekly_min = {item.week: item.min for item in data.weekly_min}
 
-        headers = ["Semana", "Km", "Δ %", "Desnivel +", "Km acum.", "Desnivel acum."]
+        headers = ["Semana", "Carga (hh:mm)", "Km", "Δ %", "Desnivel +", "Km acum.", "Desnivel acum."]
 
         rows = []
         km_acc = 0.0
@@ -82,8 +83,10 @@ class MatplotlibRenderer(DashboardRenderer):
             des_acc += w.ascent_m
             delta = "-" if w.delta_pct is None else f"{w.delta_pct:.1f}%"
             week_label = f"{w.week} ({w.week_start.strftime('%d/%m')} - {w.week_end.strftime('%d/%m')})"
+            hours = minutes_to_hhmm( int(round(weekly_min.get(w.week, 0), 0)) )
             rows.append([
                 week_label,
+                f"{hours}",
                 f"{w.km:.1f}",
                 delta,
                 f"{w.ascent_m:,}".replace(",", "."),
@@ -116,7 +119,7 @@ class MatplotlibRenderer(DashboardRenderer):
 
         # Ajusto el ancho de las columnas
         table.scale(0.9, 1.3)
-        col_widths = [0.12, 0.10, 0.10, 0.10, 0.10, 0.10]
+        col_widths = [0.16, 0.10, 0.08, 0.08, 0.10, 0.10, 0.10]
         for (row, col), cell in table.get_celld().items():
             if col < len(col_widths):
                 cell.set_width(col_widths[col])
