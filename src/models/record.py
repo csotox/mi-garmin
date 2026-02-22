@@ -3,8 +3,11 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from src.models import activity
+
 
 class RecordPoint(BaseModel):
+    activity_id: str
     timestamp: datetime
 
     heart_rate: Optional[int] = Field(None, gt=0)

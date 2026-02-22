@@ -24,6 +24,7 @@ def get_activity_summary(fitfile: FitFile, file_name: str) -> ActivitySummary:
         data["sport"] = str(data["sport"])
 
     summary = ActivitySummary(
+        activity_id = file_name,
         file_name=file_name,
         start_time=data["start_time"],
         sport=data["sport"],
@@ -64,7 +65,7 @@ def get_activity_laps(fitfile: FitFile) -> list[LapSummary]:
 
     return laps
 
-def get_activity_records(fitfile: FitFile) -> list[RecordPoint]:
+def get_activity_records(fitfile: FitFile, file_name: str) -> list[RecordPoint]:
     records: list[RecordPoint] = []
 
     for record in fitfile.get_messages("record"):
@@ -77,6 +78,7 @@ def get_activity_records(fitfile: FitFile) -> list[RecordPoint]:
             continue
 
         point = RecordPoint(
+            activity_id=file_name,
             timestamp=data["timestamp"],
             heart_rate=data.get("heart_rate"),
             speed=data.get("speed"),

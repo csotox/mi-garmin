@@ -49,7 +49,7 @@ def read_raw_fit_activities() -> tuple[list[ActivitySummary], list, list]:
             laps = get_activity_laps(data)
             all_laps.extend(laps)
 
-            records = get_activity_records(data)
+            records = get_activity_records(data, item_file.name)
             all_records.extend(records)
 
     return activities, all_laps, all_records
@@ -72,7 +72,7 @@ def main():
     write_parquet(df_records, f"{PATH_DATA_PARQUET}/records.parquet")
 
     #-- - Validación de todo ok
-    df_check = pl.read_parquet(f"{PATH_DATA_PARQUET}/activity_summary.parquet")
+    pl.read_parquet(f"{PATH_DATA_PARQUET}/activity_summary.parquet")
 
     output.info("-- - Automatización finalizada -- -")
 

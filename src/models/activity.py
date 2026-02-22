@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 
 class ActivitySummary(BaseModel):
+    activity_id: str
     file_name: str          # Nombre fisico del archivo .fit
     start_time: datetime    # Fecha/hora inicio de la actividad
     sport: str              # Tipo de actividad
