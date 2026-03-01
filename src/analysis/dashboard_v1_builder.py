@@ -8,8 +8,18 @@ import polars as pl
 from src.models.data_kpi_week import DataKPIWeek
 from src.models.season_config import SeasonConfig
 
+WEEKDAYS_ES = {
+    0: "Lunes",
+    1: "Martes",
+    2: "Miércoles",
+    3: "Jueves",
+    4: "Viernes",
+    5: "Sábado",
+    6: "Domingo",
+}
 
-def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
+
+def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek], df_sessions: pl.DataFrame) -> dict:
     weeks_sorted = sorted(weeks, key=lambda w: w.season_week)
 
     if not weeks_sorted:
@@ -92,6 +102,9 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
         season.weeks
     )
 
+    #-- - Sesiones diarias para mostrar los microciclos en el tablero
+    days_block = build_days(df_sessions, 8)
+
     return {
         "schema_version": "v1",
         "season": season_block,
@@ -101,6 +114,7 @@ def build_dashboard_v1(season: SeasonConfig, weeks: list[DataKPIWeek]) -> dict:
         "weekly_min": weeks_min,
         "mesocycles": mesocycles,
         "microcycles": microcycles,
+        "days": days_block,
         "desafios": read_desafios_config(season.code),
     }
 
@@ -268,3 +282,49 @@ def build_combined_load_series(
             out[i]["is_overload"] = False
 
     return out
+
+
+def build_days(df_sessions: pl.DataFrame, last_n_weeks: int = 4):
+
+    if df_sessions.is_empty():
+        return []
+
+    # Filtrar últimas N semanas
+    # Lo calculo así para que pydantic deje de dar mensaje en la siguiente linea
+    max_week = df_sessions.select( pl.col("season_week").max() ).item()
+    min_week = max_week - (last_n_weeks - 1)
+
+    df_filtered = df_sessions.filter(
+        pl.col("season_week") >= min_week
+    )
+
+    days_dict = {}
+
+    for row in df_filtered.sort(["day", "start_time"]).to_dicts():
+
+        date_str = row["day"].isoformat()
+
+        if date_str not in days_dict:
+            days_dict[date_str] = {
+                "date": date_str,
+                "day_name": WEEKDAYS_ES[row["day"].weekday()],
+                "season_week": row["season_week"],
+                "sessions": []
+            }
+
+        session_block = {
+            "session_id": row["activity_id"],
+            "activity_type": row["activity_type"],
+            "distance_km": round(row.get("distance_km", 0) or 0, 2),
+            "time_min": round(row.get("time_min", 0) or 0, 2),
+            "ascent_m": row.get("total_ascent") or 0,
+            "avg_hr": row.get("avg_heart_rate"),
+            "max_hr": row.get("max_heart_rate"),
+            "avg_hr_first_half": row.get("avg_hr_first_half"),
+            "avg_hr_second_half": row.get("avg_hr_second_half"),
+            "cardiac_drift_pct": row.get("cardiac_drift_pct"),
+        }
+
+        days_dict[date_str]["sessions"].append(session_block)
+
+    return list(days_dict.values())

@@ -11,9 +11,14 @@ from src.models.season_config import SeasonConfig
 
 #-- - Resumen semanal de sesiones de entrenamiento
 #-- - Bases para calculo de kpis semanal
-def get_data_kpi_week_from_activity(df_activity: pl.DataFrame, temporada:SeasonConfig) -> list[DataKPIWeek]:
+def get_data_kpi_week(
+        df_activity: pl.DataFrame,
+        df_records: pl.DataFrame,
+        temporada:SeasonConfig
+) -> tuple[list[DataKPIWeek], pl.DataFrame]:
+
     if df_activity.is_empty():
-        return []
+        return [], pl.DataFrame()
 
     #-- - Normalizamos unidades: distancia (m->km) y tiempo (s->min)
     df = df_activity.with_columns(
@@ -24,34 +29,24 @@ def get_data_kpi_week_from_activity(df_activity: pl.DataFrame, temporada:SeasonC
 
     #-- - Asignamos los datos de la temporada
     #-- - Agregamos la columna season_week, para tener el número de la semana
+    #-- - Asignamos el tipo de actividad
     df = df.with_columns(
         pl.col("day")
         .map_elements(lambda d: calculate_season_week(d, temporada))
-        .alias("season_week")
-    )
-
-    #-- - Asignamos el tipo de actividad
-    df = df.with_columns(
+        .alias("season_week"),
         pl.col("sport")
         .map_elements(activity_type)
-        .alias("activity_type")
+        .alias("activity_type"),
     )
+
+    #-- - Calculo datos de la frecuencia cardiaca
+    df = _calc_fc(df, df_records)
 
     #-- - Reclasificar algunas actividades según necesidad
     #-- - Ej.: run -> trail
     overrides = load_overrides()
 
     if overrides:
-        # df = df.with_columns(
-        #     pl.when(pl.col("file_name").is_in(list(overrides.keys())))
-        #     .then(
-        #         pl.col("file_name")
-        #         .map_elements(lambda x: overrides.get(x, None))
-        #     )
-        #     .otherwise(pl.col("activity_type"))
-        #     .fill_null(pl.col("activity_type"))
-        #     .alias("activity_type")
-        # )
         over_aux = pl.DataFrame({
             "file_name": list(overrides.keys()),
             "override_type": list(overrides.values())
@@ -65,9 +60,6 @@ def get_data_kpi_week_from_activity(df_activity: pl.DataFrame, temporada:SeasonC
                 pl.col("activity_type")
             ).alias("activity_type")
         ).drop("override_type")
-
-
-
 
 
     #-- - Agrupamos por semana y actividad
@@ -113,4 +105,41 @@ def get_data_kpi_week_from_activity(df_activity: pl.DataFrame, temporada:SeasonC
             )
         )
 
-    return out
+    return out, df
+
+#-- -
+#-- - Agregas dos columnas a cada fila del df
+#-- - La media de la frecuencia cardiaca en la primera y seguda hora
+def _calc_fc(df, df_records):
+    if df_records.is_empty():
+        return df
+
+    df_records_sorted = df_records.sort(["activity_id", "timestamp"])
+
+    mitad = (
+        df_records_sorted
+        .with_columns(
+            pl.arange(0, pl.count()).over("activity_id").alias("idx"),
+            pl.col("timestamp").count().over("activity_id").alias("total_points")
+        )
+        .with_columns(
+            (pl.col("idx") < (pl.col("total_points") / 2)).alias("first_half")
+        )
+        .group_by(["activity_id", "first_half"])
+        .agg(
+            pl.col("heart_rate").mean().alias("avg_hr_half")
+        )
+        .pivot(
+            index="activity_id",
+            columns="first_half",
+            values="avg_hr_half"
+        )
+        .rename({
+            "true": "avg_hr_first_half",
+            "false": "avg_hr_second_half"
+        })
+    )
+
+    df = df.join(mitad, on="activity_id", how="left")
+
+    return df

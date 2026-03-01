@@ -31,6 +31,26 @@ class WeeklySeries(BaseModel):
     delta_pct: Optional[float]
 
 
+class DaySeries(BaseModel):
+    session_id: str
+    activity_type: str
+    distance_km: float
+    time_min: float
+    ascent_m: int
+    avg_hr: int
+    max_hr: int
+    avg_hr_first_half: float
+    avg_hr_second_half: float
+    cardiac_drift_pct: Optional[float]
+
+
+class DaysMicrocicle(BaseModel):
+    date: date
+    day_name: str
+    season_week: int
+    sessions: list[DaySeries]
+
+
 class WeeklyMin(BaseModel):
     week: int
     min: float
@@ -79,4 +99,5 @@ class DashboardDataV1(BaseModel):
     weekly_min: list[WeeklyMin] = []
     mesocycles: list[Mesocycle] = []
     microcycles: dict[int, Microcycle] = {}
+    days: list[DaysMicrocicle] = []
     desafios: dict[int, Desafios] = {}

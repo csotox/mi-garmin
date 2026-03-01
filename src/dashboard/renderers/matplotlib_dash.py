@@ -1,4 +1,5 @@
 import math
+from datetime import datetime, timedelta
 
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
@@ -16,6 +17,7 @@ COLOR_W_NONE   = "#dddddd"
 COLOR_DESAFIO  = "#c0392b"
 COLOR_W_MIN    = "#34495e"
 COLOR_W_INC    = "#f8c471"
+DIAS_ES = ["L", "M", "X", "J", "V", "S", "D"]
 
 class MatplotlibRenderer(DashboardRenderer):
 
@@ -24,7 +26,7 @@ class MatplotlibRenderer(DashboardRenderer):
         self.output_path = output_path
 
         self.fig = plt.figure(figsize=(16, 9), constrained_layout=True)
-        self.gs = GridSpec(5, 4, figure=self.fig, height_ratios=[0.6, 1.2, 2.2, 1.6, 1.2])
+        self.gs = GridSpec(6, 4, figure=self.fig, height_ratios=[0.6, 1.2, 2.2, 1.6, 1.8, 1.2])
 
 
     def render_header(self, data):
@@ -321,6 +323,110 @@ class MatplotlibRenderer(DashboardRenderer):
         handles.append(overload_patch)
         ax.legend(handles=handles)
         # ax.legend()
+
+
+    def render_microcycle_chart(self, data): ...
+
+    #     ax = self.fig.add_subplot(self.gs[4, :])
+
+    #     #-- - Calcular fecha actual (Última fecha en entrenamiento)
+    #     #-- - total_dias es la cantidad de días que quiero análisar
+    #     total_dias = 21
+    #     days_sorted = sorted(data.days, key=lambda d: d.date)
+    #     #last_day = datetime.strptime(days_sorted[-1].date, "%Y-%m-%d").date()
+    #     last_day = days_sorted[-1].date
+
+    #     #-- - Lista con la cantidad de días que quiero mostrar
+    #     full_weeks = []
+    #     for i in range(total_dias):
+    #         day_date = last_day - timedelta(days=i)
+    #         full_weeks.append(day_date)
+    #     # Orden cronologico
+    #     full_weeks = list(reversed(full_weeks))
+
+    #     #-- - Indexo days para realizar busquemas más rapidas
+    #     days_index = {d.date: d for d in data.days}
+
+
+    #     x_labels = []
+    #     minutes = []
+    #     km = []
+    #     sessions_count = []
+    #     hr_avg = []
+    #     hr_max = []
+
+    #     for day_date in full_weeks:
+    #         # x_labels.append(day_date.strftime("%a")[0])  # L, M, X...
+    #         x_labels.append(f"{DIAS_ES[day_date.weekday()]}\n{day_date.strftime('%d/%m')}")
+
+    #         if day_date in days_index:
+    #             sessions = days_index[day_date].sessions
+
+    #             total_min = sum(s.time_min for s in sessions)
+    #             total_km = sum(s.distance_km for s in sessions)
+    #             total_sessions = len(sessions)
+
+    #             if total_min > 0:
+    #                 weighted_hr = sum(s.avg_hr * s.time_min for s in sessions) / total_min
+    #             else:
+    #                 weighted_hr = 0
+
+    #             max_hr = max((s.max_hr for s in sessions), default=0)
+
+    #         else:
+    #             total_min = 0
+    #             total_km = 0
+    #             total_sessions = 0
+    #             weighted_hr = 0
+    #             max_hr = 0
+
+    #         minutes.append(total_min)
+    #         km.append(total_km)
+    #         sessions_count.append(total_sessions)
+    #         hr_avg.append(weighted_hr)
+    #         hr_max.append(max_hr)
+
+    #     x = range(len(full_weeks))
+
+    #     # --- Barras minutos ---
+    #     bars = ax.bar(x, minutes, alpha=0.7)
+
+    #     # Mostrar número de sesiones sobre cada barra
+    #     for i, val in enumerate(minutes):
+    #         if val > 0:
+    #             ax.text(
+    #                 i,
+    #                 val + max(minutes) * 0.03,
+    #                 str(sessions_count[i]),
+    #                 ha="center",
+    #                 fontsize=9,
+    #                 weight="bold"
+    #             )
+
+    #     ax.set_ylabel("Minutos")
+    #     ax.set_xticks(x)
+    #     ax.set_xticklabels(x_labels)
+    #     ax.set_xlabel("Día")
+
+    #     # --- Línea KM ---
+    #     ax2 = ax.twinx()
+    #     ax2.plot(
+    #         x,
+    #         km,
+    #         linewidth=2,
+    #         marker="o",
+    #         label="Km"
+    #     )
+    #     ax2.set_ylabel("Km")
+
+    #     ax.grid(True, axis="y", alpha=0.3)
+
+    #     handles1, labels1 = ax.get_legend_handles_labels()
+    #     handles2, labels2 = ax2.get_legend_handles_labels()
+
+    #     ax.legend(handles1 + handles2,
+    #             labels1 + labels2,
+    #             loc="upper left")
 
 
     def finalize(self):
